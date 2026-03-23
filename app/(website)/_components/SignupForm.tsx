@@ -1,6 +1,4 @@
 "use client";
-
-import Link from "next/link";
 import { useState } from "react";
 import { FaRegEye, FaRegEyeSlash } from "react-icons/fa";
 import { FiLock } from "react-icons/fi";
@@ -43,7 +41,6 @@ function SignupForm() {
 
           <button
             type="button"
-            // PREVENT DEFAULT is the key for mobile. It stops the input from stealing the tap.
             onPointerDown={(e) => e.preventDefault()}
             onClick={() => setShowPassword(!showPassword)}
             className="p-2cursor-pointer absolute top-1/2 right-2 z-50 -translate-y-1/2 cursor-pointer p-2 text-stone-500 opacity-80 transition-all hover:text-stone-700 hover:opacity-100 active:scale-90"

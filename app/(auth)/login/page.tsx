@@ -8,6 +8,7 @@ import LoginForm from "@/app/(website)/_components/LoginForm";
 import { FaApple, FaFacebook } from "react-icons/fa";
 import { FcGoogle } from "react-icons/fc";
 import BackButton from "@/app/(website)/_components/BackButton";
+import SocialLogin from "@/app/(website)/_components/SocialLogin";
 
 export const metadata: Metadata = {
   title: "Login",
@@ -77,34 +78,7 @@ export default function LoginPage() {
               </div>
             </div>
 
-            <div className="mt-6 space-y-3">
-              {/* Google */}
-              <button
-                type="button"
-                className="flex w-full cursor-pointer items-center justify-center gap-3 rounded-lg border border-stone-400/70 py-3 font-semibold text-stone-700 transition hover:bg-stone-300/60 active:scale-[0.98]"
-              >
-                <FcGoogle />
-                Sign in with Google
-              </button>
-
-              {/* Apple */}
-              <button
-                type="button"
-                className="flex w-full cursor-pointer items-center justify-center gap-3 rounded-lg border border-stone-400/70 py-3 font-semibold text-stone-700 transition hover:bg-stone-300/60 active:scale-[0.98]"
-              >
-                <FaApple />
-                Sign in with Apple
-              </button>
-
-              {/* Facebook */}
-              <button
-                type="button"
-                className="flex w-full cursor-pointer items-center justify-center gap-3 rounded-lg border border-stone-400/70 py-3 font-semibold text-stone-700 transition hover:bg-stone-300/60 active:scale-[0.98]"
-              >
-                <FaFacebook className="text-blue-600" />
-                Sign in with Facebook
-              </button>
-            </div>
+            <SocialLogin />
           </div>
         </div>
       </div>
