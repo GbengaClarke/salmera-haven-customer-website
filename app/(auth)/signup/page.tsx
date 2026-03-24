@@ -1,21 +1,17 @@
-import { Metadata } from "next";
+"use client";
+
 import Link from "next/link";
 import Image from "next/image";
 import authBg from "../../../public/auth-pic.jpg";
 import AuthFooter from "@/app/(website)/_components/AuthFooter";
 import CompanyLogo from "@/app/(website)/_components/CompanyLogo";
-import LoginForm from "@/app/(website)/_components/LoginForm";
-import { FaApple, FaFacebook } from "react-icons/fa";
-import { FcGoogle } from "react-icons/fc";
 import BackButton from "@/app/(website)/_components/BackButton";
 import SignupForm from "@/app/(website)/_components/SignupForm";
+import { useState } from "react";
 
-export const metadata: Metadata = {
-  title: "Sign up",
-  description: "Access your Salmera Haven account",
-};
+export default function SignupPage() {
+  const [step, setStep] = useState(1);
 
-export default function LoginPage() {
   return (
     <main className="relative flex min-h-screen w-full flex-col items-center justify-center bg-stone-900">
       {/*  Optimized Background Image */}
@@ -57,7 +53,7 @@ export default function LoginPage() {
                   Register
                 </h1>
 
-                <BackButton />
+                {step === 1 && <BackButton />}
               </div>
               <p className="mt-2 font-semibold text-stone-800">
                 Returning user?{" "}
@@ -67,7 +63,9 @@ export default function LoginPage() {
               </p>
             </div>
 
-            <SignupForm />
+            {/* {progress bar} */}
+
+            <SignupForm step={step} setStep={setStep} />
           </div>
         </div>
       </div>

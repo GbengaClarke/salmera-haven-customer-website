@@ -12,12 +12,13 @@ export default async function Homepage() {
 
   const user = session?.user;
 
-  console.log(user);
-
   return (
     <div>
       <h1 className="brd m-2 rounded bg-white p-4 shadow">
         welcome to the home page{"   "}
+        {
+          // use name from database instead
+        }
         <strong>{user ? `${user?.name}, ${user?.email}` : "no user"}</strong>
       </h1>
 
