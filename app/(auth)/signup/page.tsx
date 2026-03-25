@@ -8,6 +8,7 @@ import CompanyLogo from "@/app/(website)/_components/CompanyLogo";
 import BackButton from "@/app/(website)/_components/BackButton";
 import SignupForm from "@/app/(website)/_components/SignupForm";
 import { useState } from "react";
+import SignupProgressBar from "@/app/(website)/_components/SignupProgressBar";
 
 export default function SignupPage() {
   const [step, setStep] = useState(1);
@@ -29,7 +30,7 @@ export default function SignupPage() {
       </div>
 
       {/* Form & Logo container*/}
-      <div className="relative z-10 mt-8 flex w-full flex-1 flex-col items-center justify-center px-6 md:flex-row md:items-center md:gap-12">
+      <div className="relative z-10 mt-8 flex w-full flex-1 flex-col items-center justify-center px-6 transition-all duration-700 ease-in-out md:flex-row md:items-center md:gap-12">
         {/* Company name and logo */}
         <CompanyLogo
           contStyle="md:mb-0 mb-8 gap-1.5 md:text-left justify-center"
@@ -39,7 +40,7 @@ export default function SignupPage() {
         {/* Login Form Card */}
         <div className="w-full max-w-md">
           <div className="rounded-2xl border border-white/20 bg-white/90 p-8 shadow-2xl backdrop-blur-md">
-            <div className="mb-6">
+            <div>
               <div className="hidden md:block">
                 <CompanyLogo
                   contStyle="gap-1 justify-items-start"
@@ -63,7 +64,7 @@ export default function SignupPage() {
               </p>
             </div>
 
-            {/* {progress bar} */}
+            <SignupProgressBar step={step} />
 
             <SignupForm step={step} setStep={setStep} />
           </div>

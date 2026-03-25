@@ -5,8 +5,6 @@ import authBg from "../../../public/auth-pic.jpg";
 import AuthFooter from "@/app/(website)/_components/AuthFooter";
 import CompanyLogo from "@/app/(website)/_components/CompanyLogo";
 import LoginForm from "@/app/(website)/_components/LoginForm";
-import { FaApple, FaFacebook } from "react-icons/fa";
-import { FcGoogle } from "react-icons/fc";
 import BackButton from "@/app/(website)/_components/BackButton";
 import SocialLogin from "@/app/(website)/_components/SocialLogin";
 
