@@ -1,7 +1,9 @@
 "use client";
-import { maskEmail } from "@/utils";
+import { sendEmailOTP } from "@/app/actions/authActions";
+import { maskEmail, otpGenerator } from "@/app/helpers/utils";
 import { Dispatch, SetStateAction, useState } from "react";
 import toast from "react-hot-toast";
+// import toast from "react-hot-toast";
 import { FaCheckCircle, FaRegEye, FaRegEyeSlash } from "react-icons/fa";
 import { FiLock, FiUser } from "react-icons/fi";
 import { MdOutlineEmail } from "react-icons/md";
@@ -12,9 +14,11 @@ interface SignupFormProps {
 }
 
 function SignupForm({ step, setStep }: SignupFormProps) {
+  const [isLoading, setIsLoading] = useState(false);
   const [name, setName] = useState("Gbenga Clarke");
   const [email, setEmail] = useState("gbengaclarke@gmail.com");
-  const [otp, setOtp] = useState("123456");
+  const [userOtp, setuserOtp] = useState("123456");
+  const [generatedOtp, setGeneratedOtp] = useState("");
 
   const [password, setPassword] = useState("aaa1%AAA");
   const [confirmPassword, setConfirmPassword] = useState("");
@@ -39,7 +43,7 @@ function SignupForm({ step, setStep }: SignupFormProps) {
   const isNameValid = name.trim().split(/\s+/).length >= 2; //two names
   const isEmailValid = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
   const isFormValid = isNameValid && isEmailValid;
-  const is6digits = otp.length === 6;
+  const is6digits = userOtp.length === 6;
   const validStep2 = isFormValid && is6digits;
 
   const disableButton =
@@ -48,6 +52,51 @@ function SignupForm({ step, setStep }: SignupFormProps) {
   // function handleSuccess() {
   //   toast.success("Registration successful! Welcome to Salmera Haven.");
   // }
+
+  async function handleNext() {
+    if (step >= 3) return;
+
+    const toastId = toast.loading("Sending your OTP code...");
+
+    if (step === 1) {
+      const genOtp = otpGenerator();
+
+      setGeneratedOtp(genOtp);
+
+      //check if user already has an account
+
+      //upload otp (hashed code?) & send email
+      const res = await sendEmailOTP(genOtp, email.trim());
+
+      if (res.success) {
+        toast.success("Code sent to your email!", { id: toastId });
+        setStep(2);
+        setIsLoading(false);
+      } else {
+        toast.error("Failed to send code. Try again.", { id: toastId });
+        setIsLoading(false);
+      }
+    }
+
+    if (step === 2) {
+      console.log(generatedOtp);
+
+      // if (res.success) {
+      //   toast.success("Email verified!");
+      //   setStep(3);
+      // } else {
+      //   toast.error("Invalid or expired code.");
+      // }
+
+      //delete otp row after use
+    }
+
+    // setStep((step) => step + 1);
+  }
+
+  // const random = otpGenerator();
+
+  // console.log(random);
 
   return (
     <form className="space-y-5" onSubmit={(e) => e.preventDefault()}>
@@ -64,6 +113,7 @@ function SignupForm({ step, setStep }: SignupFormProps) {
               <input
                 type="text"
                 required
+                disabled={isLoading}
                 value={name}
                 onChange={(e) => setName(e.target.value)}
                 placeholder="First and Last Name"
@@ -81,6 +131,7 @@ function SignupForm({ step, setStep }: SignupFormProps) {
             <div className="relative">
               <input
                 type="email"
+                disabled={isLoading}
                 required
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
@@ -93,7 +144,7 @@ function SignupForm({ step, setStep }: SignupFormProps) {
         </>
       )}
 
-      {/* STEP 2: OTP Verification */}
+      {/* STEP 2: userOTP Verification */}
       {step === 2 && (
         <div className="space-y-4">
           <p className="text-sm font-semibold text-stone-900">
@@ -111,8 +162,9 @@ function SignupForm({ step, setStep }: SignupFormProps) {
             <input
               type="text"
               maxLength={6}
-              value={otp}
-              onChange={(e) => setOtp(e.target.value)}
+              disabled={isLoading}
+              value={userOtp}
+              onChange={(e) => setuserOtp(e.target.value)}
               placeholder="000000"
               className="w-full rounded-lg border border-stone-300 py-4 text-center font-mono text-2xl tracking-[1em] outline-none focus:border-blue-500"
             />
@@ -139,6 +191,7 @@ function SignupForm({ step, setStep }: SignupFormProps) {
               <input
                 type={showPassword ? "text" : "password"}
                 required
+                disabled={isLoading}
                 value={password}
                 onChange={(e) => setPassword(() => e.target.value)}
                 placeholder="••••••••"
@@ -185,6 +238,7 @@ function SignupForm({ step, setStep }: SignupFormProps) {
               <input
                 type={showConfirmPassword ? "text" : "password"}
                 required
+                disabled={isLoading}
                 value={confirmPassword}
                 onChange={(e) => setConfirmPassword(() => e.target.value)}
                 placeholder="••••••••"
@@ -194,6 +248,7 @@ function SignupForm({ step, setStep }: SignupFormProps) {
 
               <button
                 type="button"
+                disabled={isLoading}
                 onPointerDown={(e) => e.preventDefault()}
                 onClick={() => setShowConfirmPassword(!showConfirmPassword)}
                 className="p-2cursor-pointer absolute top-1/2 right-2 z-50 -translate-y-1/2 cursor-pointer p-2 text-stone-500 opacity-80 transition-all hover:text-stone-700 hover:opacity-100 active:scale-90"
@@ -210,14 +265,11 @@ function SignupForm({ step, setStep }: SignupFormProps) {
       )}
 
       <button
-        onClick={() => {
-          if (step >= 3) return;
-          setStep((step) => step + 1);
-        }}
+        onClick={handleNext}
         type="button"
-        disabled={disableButton}
+        disabled={disableButton || isLoading}
         className={`w-full rounded-lg py-3 font-semibold text-white transition-all active:scale-[0.98] ${
-          !disableButton
+          !disableButton && !isLoading
             ? "cursor-pointer bg-blue-600 shadow-md hover:bg-blue-700"
             : "cursor-not-allowed bg-blue-300 opacity-70"
         }`}
