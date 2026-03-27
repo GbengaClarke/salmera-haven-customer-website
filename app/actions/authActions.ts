@@ -1,108 +1,63 @@
 "use server";
 
+import { getExistingOTP } from "@/lib/dataApi";
 import { supabase } from "@/lib/supabase";
-import Nodemailer from "nodemailer";
+import nodemailer from "nodemailer";
 
-//step 1
+const transporter = nodemailer.createTransport({
+  service: "gmail",
+  auth: {
+    user: "gbclarkee@gmail.com",
+    pass: process.env.GMAIL_APP_PASSWORD,
+  },
+});
+
 export async function sendEmailOTP(otp: string, email: string) {
-  // Save to DB (using Upsert so we don't spam rows for the same email)
-  const { error } = await supabase
-    .from("email_otp")
-    .upsert(
-      { email, code: otp, expires_at: new Date(Date.now() + 5 * 60000) },
+  const normalizedEmail = email.trim().toLowerCase();
+
+  try {
+    //  Check 60 seconds Cooldown
+    const otpStatus = await getExistingOTP(normalizedEmail);
+    if (otpStatus.success) return otpStatus;
+
+    //  Database Update
+    const { error: dbError } = await supabase.from("email_otp").upsert(
+      {
+        email: normalizedEmail,
+        code: otp,
+        created_at: new Date().toISOString(),
+        expires_at: new Date(Date.now() + 5 * 60000).toISOString(),
+      },
       { onConflict: "email" },
     );
 
-  if (error) throw new Error("Could not generate code");
+    if (dbError) {
+      console.error("DB Error:", dbError);
+      return { success: false, message: "Server database error. Try again." };
+    }
 
-  // if (error) throw new Error("Could not generate code: " + error.message);
-
-  // Send email OTP via nodemailer
-  // Create the Gmail Transporter
-  const transporter = Nodemailer.createTransport({
-    service: "gmail",
-    auth: {
-      user: "gbclarkee@gmail.com", // Your personal email
-      pass: process.env.GMAIL_APP_PASSWORD, // The 16-character App Password
-    },
-  });
-
-  // Send the Mail
-  try {
+    // Send Email
     await transporter.sendMail({
-      from: '"Salmera Haven" <gbengaclarke@gmail.com>',
-      to: email, // This can now be ANY email address
-      subject: "Your Verification Code",
-      html: `<b>Your code is: ${otp}</b>`,
+      from: '"Salmera Haven" <gbclarkee@gmail.com>',
+      to: normalizedEmail,
+      subject: "Verify your Account on Salmera Haven",
+      html: `
+        <div style="font-family: sans-serif; max-width: 400px; border: 1px solid #eee; padding: 20px; border-radius: 10px;">
+          <h2 style="color: #1e293b;">Verification Code</h2>
+          <p style="color: #64748b;">Enter the code below to secure your account:</p>
+          <div style="background: #f1f5f9; padding: 15px; text-align: center; font-size: 32px; font-weight: bold; letter-spacing: 4px; color: #2563eb;">
+            ${otp}
+          </div>
+          <p style="font-size: 12px; color: #94a3b8; margin-top: 20px;">
+            This code will expire in 5 minutes. If you didn't request this, please ignore this email.
+          </p>
+        </div>
+      `,
     });
-    return { success: true };
-  } catch (e) {
-    console.error(e);
-    return { success: false };
+
+    return { success: true, message: "Code sent to your email!" };
+  } catch (error) {
+    console.error("Email/System Error:", error);
+    return { success: false, message: "Failed to send code. Try again." };
   }
 }
-
-// step 2: Verify the code
-// export async function verifyOTP(email: string, userCode: string) {
-//   const supabase = await createClient();
-
-//   const { data, error } = await supabase
-//     .from('otp_verifications')
-//     .select('code, expires_at')
-//     .eq('email', email)
-//     .single();
-// }
-console.log("hi");
-
-// "use server";
-
-// import { supabase } from "@/lib/supabase";
-// import { Resend } from "resend";
-
-// const resend = new Resend(process.env.RESEND_API_KEY);
-
-// //step 1
-// export async function sendEmailOTP(otp: string, email: string) {
-//   // Save to DB (using Upsert so we don't spam rows for the same email)
-//   const { error } = await supabase
-//     .from("email_otp")
-//     .upsert(
-//       { email, code: otp, expires_at: new Date(Date.now() + 5 * 60000) },
-//       { onConflict: "email" },
-//     );
-
-//   if (error) throw new Error("Could not generate code");
-
-//   // if (error) throw new Error("Could not generate code: " + error.message);
-
-//   // Send email OTP via Resend
-//   try {
-//     const { data, error } = await resend.emails.send({
-//       from: "onboarding@resend.dev", // Use this until domain is verified
-//       to: email,
-//       subject: "Your Verification Code - Salmera Haven",
-//       html: `<strong>Your code is: ${otp}</strong>`,
-//     });
-
-//     if (error) {
-//       console.error("Resend API Error:", error);
-//       return { success: false, error: error.message };
-//     }
-
-//     return { success: true };
-//   } catch (e) {
-//     console.error("Connection Error:", e);
-//     return { success: false, error: "System failure" };
-//   }
-// }
-
-// // step 2: Verify the code
-// // export async function verifyOTP(email: string, userCode: string) {
-// //   const supabase = await createClient();
-
-// //   const { data, error } = await supabase
-// //     .from('otp_verifications')
-// //     .select('code, expires_at')
-// //     .eq('email', email)
-// //     .single();
-// // }

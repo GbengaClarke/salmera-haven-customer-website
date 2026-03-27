@@ -1,6 +1,7 @@
 "use client";
 import { sendEmailOTP } from "@/app/actions/authActions";
 import { maskEmail, otpGenerator } from "@/app/helpers/utils";
+import { getExistingProfile } from "@/lib/dataApi";
 import { Dispatch, SetStateAction, useState } from "react";
 import toast from "react-hot-toast";
 // import toast from "react-hot-toast";
@@ -49,37 +50,58 @@ function SignupForm({ step, setStep }: SignupFormProps) {
   const disableButton =
     step === 1 ? !isFormValid : step === 2 ? !validStep2 : !allChecksMet;
 
-  // function handleSuccess() {
-  //   toast.success("Registration successful! Welcome to Salmera Haven.");
-  // }
-
   async function handleNext() {
     if (step >= 3) return;
-
-    const toastId = toast.loading("Sending your OTP code...");
+    setIsLoading(true);
 
     if (step === 1) {
-      const genOtp = otpGenerator();
+      const toastId = toast.loading("Checking mail...");
 
+      const genOtp = otpGenerator();
       setGeneratedOtp(genOtp);
 
       //check if user already has an account
+      const profile = await getExistingProfile(email);
+
+      if (profile.itExists) {
+        toast("An account with this email already exists. Please log in.", {
+          id: toastId,
+          icon: "⚠️",
+          style: {
+            background: "#e7ebec",
+            color: "#154055",
+            textAlign: "center",
+          },
+        });
+
+        setIsLoading(false);
+
+        return;
+      }
 
       //upload otp (hashed code?) & send email
-      const res = await sendEmailOTP(genOtp, email.trim());
+      if (!profile.itExists) {
+        const res = await sendEmailOTP(genOtp, email);
 
-      if (res.success) {
-        toast.success("Code sent to your email!", { id: toastId });
-        setStep(2);
-        setIsLoading(false);
-      } else {
-        toast.error("Failed to send code. Try again.", { id: toastId });
-        setIsLoading(false);
+        if (res.success) {
+          toast.success(res.message, { id: toastId });
+          setStep(2);
+          setIsLoading(false);
+        } else {
+          toast.error(res.message, { id: toastId });
+          setIsLoading(false);
+        }
       }
     }
 
     if (step === 2) {
-      console.log(generatedOtp);
+      console.log(userOtp);
+
+      //start 5min timer countdown
+      //compare supabase otp and input otp, then validate (toast acknoledge)
+
+      //delete otp row after use
+      //delete all expired otp rows
 
       // if (res.success) {
       //   toast.success("Email verified!");
@@ -88,7 +110,7 @@ function SignupForm({ step, setStep }: SignupFormProps) {
       //   toast.error("Invalid or expired code.");
       // }
 
-      //delete otp row after use
+      setIsLoading(false);
     }
 
     // setStep((step) => step + 1);
