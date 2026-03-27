@@ -1,7 +1,7 @@
 "use client";
 import { sendEmailOTP } from "@/app/actions/authActions";
 import { maskEmail, otpGenerator } from "@/app/helpers/utils";
-import { getExistingProfile } from "@/lib/dataApi";
+import { getExistingProfile, registerUser, verifyOTP } from "@/lib/dataApi";
 import { Dispatch, SetStateAction, useState } from "react";
 import toast from "react-hot-toast";
 // import toast from "react-hot-toast";
@@ -16,10 +16,10 @@ interface SignupFormProps {
 
 function SignupForm({ step, setStep }: SignupFormProps) {
   const [isLoading, setIsLoading] = useState(false);
-  const [name, setName] = useState("Gbenga Clarke");
+  const [fullName, setfullName] = useState("Gbenga Clarke");
   const [email, setEmail] = useState("gbengaclarke@gmail.com");
   const [userOtp, setuserOtp] = useState("123456");
-  const [generatedOtp, setGeneratedOtp] = useState("");
+  // const [generatedOtp, setGeneratedOtp] = useState("");
 
   const [password, setPassword] = useState("aaa1%AAA");
   const [confirmPassword, setConfirmPassword] = useState("");
@@ -41,7 +41,7 @@ function SignupForm({ step, setStep }: SignupFormProps) {
   const allChecksMet = checks.every((check) => check.met);
 
   // Validation Logic of step 1 and 2
-  const isNameValid = name.trim().split(/\s+/).length >= 2; //two names
+  const isNameValid = fullName.trim().split(/\s+/).length >= 2; //two names
   const isEmailValid = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
   const isFormValid = isNameValid && isEmailValid;
   const is6digits = userOtp.length === 6;
@@ -51,14 +51,16 @@ function SignupForm({ step, setStep }: SignupFormProps) {
     step === 1 ? !isFormValid : step === 2 ? !validStep2 : !allChecksMet;
 
   async function handleNext() {
-    if (step >= 3) return;
+    // if (step >= 4) return;
     setIsLoading(true);
 
-    if (step === 1) {
-      const toastId = toast.loading("Checking mail...");
+    //toast ID
+    const loadingName = step === 1 ? "Checking mail..." : "Verifying details";
+    const toastId = toast.loading(loadingName);
 
+    if (step === 1) {
       const genOtp = otpGenerator();
-      setGeneratedOtp(genOtp);
+      // setGeneratedOtp(genOtp);
 
       //check if user already has an account
       const profile = await getExistingProfile(email);
@@ -67,11 +69,6 @@ function SignupForm({ step, setStep }: SignupFormProps) {
         toast("An account with this email already exists. Please log in.", {
           id: toastId,
           icon: "⚠️",
-          style: {
-            background: "#e7ebec",
-            color: "#154055",
-            textAlign: "center",
-          },
         });
 
         setIsLoading(false);
@@ -95,25 +92,37 @@ function SignupForm({ step, setStep }: SignupFormProps) {
     }
 
     if (step === 2) {
-      console.log(userOtp);
+      setIsLoading(true);
+      const res = await verifyOTP(email, userOtp);
 
-      //start 5min timer countdown
-      //compare supabase otp and input otp, then validate (toast acknoledge)
-
-      //delete otp row after use
-      //delete all expired otp rows
-
-      // if (res.success) {
-      //   toast.success("Email verified!");
-      //   setStep(3);
-      // } else {
-      //   toast.error("Invalid or expired code.");
-      // }
-
+      if (res.success) {
+        toast.success(res.message, { id: toastId });
+        setStep(3);
+      } else {
+        toast.error(res.message, { id: toastId });
+      }
       setIsLoading(false);
     }
 
-    // setStep((step) => step + 1);
+    if (step === 3) {
+      setIsLoading(true);
+
+      const res = await registerUser({
+        email,
+        password,
+        fullName,
+      });
+
+      if (res.success) {
+        toast.success(res.message, { id: toastId });
+        // Redirect the user to the dashboard or home page
+        window.location.href = "/";
+      } else {
+        toast.error(res.message, { id: toastId });
+      }
+
+      setIsLoading(false);
+    }
   }
 
   // const random = otpGenerator();
@@ -136,8 +145,8 @@ function SignupForm({ step, setStep }: SignupFormProps) {
                 type="text"
                 required
                 disabled={isLoading}
-                value={name}
-                onChange={(e) => setName(e.target.value)}
+                value={fullName}
+                onChange={(e) => setfullName(e.target.value)}
                 placeholder="First and Last Name"
                 className="w-full rounded-lg border border-stone-300 bg-white/50 py-3 pl-10 text-stone-700 transition-all outline-none hover:border-blue-300 focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
               />
@@ -170,8 +179,8 @@ function SignupForm({ step, setStep }: SignupFormProps) {
       {step === 2 && (
         <div className="space-y-4">
           <p className="text-sm font-semibold text-stone-900">
-            Hello <span className="text-emerald-500">{name.split(" ")[0]}</span>
-            ,
+            Hello{" "}
+            <span className="text-emerald-500">{fullName.split(" ")[0]}</span>,
           </p>
           <p className="text-sm text-stone-900">
             We sent a 6-digit One-Time Password (OTP) to{" "}
@@ -202,7 +211,7 @@ function SignupForm({ step, setStep }: SignupFormProps) {
       )}
 
       {/* STEP 3: input password */}
-      {step === 3 && (
+      {step >= 3 && (
         <div className="space-y-4">
           {/* {first password} */}
           <div className="group flex flex-col gap-1">
@@ -290,9 +299,9 @@ function SignupForm({ step, setStep }: SignupFormProps) {
         onClick={handleNext}
         type="button"
         disabled={disableButton || isLoading}
-        className={`w-full rounded-lg py-3 font-semibold text-white transition-all active:scale-[0.98] ${
+        className={`w-full rounded-lg py-3 font-semibold text-white transition-all ${
           !disableButton && !isLoading
-            ? "cursor-pointer bg-blue-600 shadow-md hover:bg-blue-700"
+            ? "cursor-pointer bg-blue-600 shadow-md hover:bg-blue-700 active:scale-[0.98]"
             : "cursor-not-allowed bg-blue-300 opacity-70"
         }`}
       >

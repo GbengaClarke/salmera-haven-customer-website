@@ -11,7 +11,7 @@ import { useState } from "react";
 import SignupProgressBar from "@/app/(website)/_components/SignupProgressBar";
 
 export default function SignupPage() {
-  const [step, setStep] = useState(1);
+  const [step, setStep] = useState(3);
 
   return (
     <main className="relative flex min-h-screen w-full flex-col items-center justify-center bg-stone-900">

@@ -20,7 +20,17 @@ export default function RootLayout({
     <html lang="en">
       <body className="antialiased">
         {children}
-        <Toaster position="top-center" reverseOrder={false} />
+        <Toaster
+          position="top-center"
+          reverseOrder={false}
+          toastOptions={{
+            style: {
+              textAlign: "center",
+              background: "#e7ebec",
+              color: "#154055",
+            },
+          }}
+        />
       </body>
     </html>
   );
