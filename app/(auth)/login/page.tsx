@@ -31,7 +31,7 @@ export default function LoginPage() {
       </div>
 
       {/* Form & Logo container*/}
-      <div className="relative z-10 mt-8 flex w-full flex-1 flex-col items-center justify-center px-6 md:flex-row md:items-center md:gap-12">
+      <div className="relative z-10 mt-8 mr-[75rem] flex w-full flex-1 flex-col items-center justify-center px-6 md:flex-row md:items-center md:gap-12">
         {/* Company name and logo */}
         <CompanyLogo
           contStyle="md:mb-0 mb-8 gap-1.5 md:text-left justify-center"

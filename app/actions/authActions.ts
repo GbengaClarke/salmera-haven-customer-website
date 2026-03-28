@@ -2,6 +2,7 @@
 
 import { getExistingOTP } from "@/lib/dataApi";
 import { supabase } from "@/lib/supabase";
+import { revalidatePath } from "next/cache";
 import nodemailer from "nodemailer";
 
 const transporter = nodemailer.createTransport({
@@ -60,4 +61,31 @@ export async function sendEmailOTP(otp: string, email: string) {
     console.error("Email/System Error:", error);
     return { success: false, message: "Failed to send code. Try again." };
   }
+}
+
+export async function login(email: string, password: string) {
+  if (!email || !password) {
+    return { success: false, message: "Email and password are required." };
+  }
+
+  // Authenticate with Supabase
+  const { error } = await supabase.auth.signInWithPassword({
+    email: email.toLowerCase().trim(),
+    password: password,
+  });
+
+  if (error) {
+    // Return a user-friendly error message
+    console.error("Login Error:", error.message);
+    return {
+      success: false,
+      message: "Invalid login credentials. Please try again.",
+    };
+  }
+
+  // Clear the cache for the layout
+  revalidatePath("/", "layout");
+
+  //  Return success
+  return { success: true, message: "You are logged in!" };
 }

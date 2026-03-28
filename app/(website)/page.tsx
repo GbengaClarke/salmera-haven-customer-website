@@ -12,6 +12,8 @@ export default async function Homepage() {
 
   const user = session?.user;
 
+  console.log("nextjs auth:", user);
+
   return (
     <div>
       <h1 className="brd m-2 rounded bg-white p-4 shadow">

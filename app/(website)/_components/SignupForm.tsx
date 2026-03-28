@@ -2,6 +2,7 @@
 import { sendEmailOTP } from "@/app/actions/authActions";
 import { maskEmail, otpGenerator } from "@/app/helpers/utils";
 import { getExistingProfile, registerUser, verifyOTP } from "@/lib/dataApi";
+import { useRouter } from "next/navigation";
 import { Dispatch, SetStateAction, useState } from "react";
 import toast from "react-hot-toast";
 // import toast from "react-hot-toast";
@@ -15,14 +16,15 @@ interface SignupFormProps {
 }
 
 function SignupForm({ step, setStep }: SignupFormProps) {
+  const router = useRouter();
   const [isLoading, setIsLoading] = useState(false);
   const [fullName, setfullName] = useState("Gbenga Clarke");
-  const [email, setEmail] = useState("gbengaclarke@gmail.com");
+  const [email, setEmail] = useState("clarkegbenga@gmail.com");
   const [userOtp, setuserOtp] = useState("123456");
   // const [generatedOtp, setGeneratedOtp] = useState("");
 
   const [password, setPassword] = useState("aaa1%AAA");
-  const [confirmPassword, setConfirmPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("aaa1%AAA");
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
@@ -114,20 +116,22 @@ function SignupForm({ step, setStep }: SignupFormProps) {
       });
 
       if (res.success) {
-        toast.success(res.message, { id: toastId });
-        // Redirect the user to the dashboard or home page
-        window.location.href = "/";
+        toast.success(res.message, { id: toastId, duration: 4000 });
+
+        // Redirect the user to the login page after 2s delay to read toast
+        // setTimeout(() => {
+        // window.location.href = "/login";
+        router.push("/login");
+        // }, 1500);
       } else {
         toast.error(res.message, { id: toastId });
       }
 
+      setConfirmPassword("");
+      setPassword("");
       setIsLoading(false);
     }
   }
-
-  // const random = otpGenerator();
-
-  // console.log(random);
 
   return (
     <form className="space-y-5" onSubmit={(e) => e.preventDefault()}>
@@ -297,7 +301,7 @@ function SignupForm({ step, setStep }: SignupFormProps) {
 
       <button
         onClick={handleNext}
-        type="button"
+        // type="button"
         disabled={disableButton || isLoading}
         className={`w-full rounded-lg py-3 font-semibold text-white transition-all ${
           !disableButton && !isLoading

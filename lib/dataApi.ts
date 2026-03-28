@@ -1,11 +1,26 @@
 import { supabase } from "./supabase";
 
+// export async function getUser(email: string) {
+//   const { data } = await supabase
+//     .from("guests")
+//     .select("*")
+//     .ilike("email", email)
+//     .single();
+
+//   return data;
+// }
+
 export async function getUser(email: string) {
-  const { data } = await supabase
+  const { data, error } = await supabase
     .from("guests")
     .select("*")
-    .ilike("email", email)
-    .single();
+    .eq("email", email.toLowerCase())
+    .maybeSingle();
+
+  if (error) {
+    console.error("Database Error:", error.message);
+    throw new Error("Failed to get user");
+  }
 
   return data;
 }
@@ -144,11 +159,11 @@ export async function registerUser({
   const normalizedEmail = email.trim().toLowerCase();
 
   try {
-    // Use the Admin API to create a PRE-CONFIRMED user
+    //  Admin API to create a pre-confrimed user (i did my own authentication through the signup form steps)
     const { data, error: authError } = await supabase.auth.admin.createUser({
       email: normalizedEmail,
       password: password,
-      email_confirm: true, // This is the "Magic" line
+      email_confirm: true,
       user_metadata: { full_name: fullName },
     });
 
@@ -156,10 +171,20 @@ export async function registerUser({
       return { success: false, message: authError.message };
     }
 
-    // Insert into your custom 'guests' table |using ID from the Auth system to keep them linked
-    if (data.user) {
+    //check if email already in guest list
+    const existingGuest = await getUser(email);
+
+    if (existingGuest) {
+      return {
+        success: true,
+        message: "Account created! Proceed to log into your account.",
+      };
+    }
+
+    // Insert into guests table
+
+    if (!existingGuest && data.user) {
       const { error: dbError } = await supabase.from("guests").insert({
-        id: data.user.id,
         email: normalizedEmail,
         fullName: fullName,
       });
@@ -172,63 +197,9 @@ export async function registerUser({
 
     return {
       success: true,
-      message: "Account created! You are now logged in.",
+      message: "Account created! Proceed to log into your account.",
     };
   } catch (err) {
     return { success: false, message: "An unexpected error occurred." };
   }
 }
-
-// export async function registerUser({
-//   email,
-//   password,
-//   fullName,
-// }: {
-//   email: string;
-//   password: string;
-//   fullName: string;
-// }) {
-//   const normalizedEmail = email.trim().toLowerCase();
-
-//   try {
-//     // 1. Create the PRE-CONFIRMED user
-//     const { data, error: authError } = await supabase.auth.admin.createUser({
-//       email: normalizedEmail,
-//       password: password,
-//       email_confirm: true,
-//       user_metadata: { full_name: fullName },
-//     });
-
-//     if (authError) return { success: false, message: authError.message };
-
-//     // 2. Insert into 'guests' table (Ensure ID is UUID in DB!)
-//     if (data.user) {
-//       const { error: dbError } = await supabase.from("guests").insert({
-//         id: data.user.id, // This is a UUID string
-//         email: normalizedEmail,
-//         fullName: fullName,
-//       });
-
-//       if (dbError) {
-//         console.error("DB Error:", dbError.message);
-//         return { success: false, message: "Auth succeeded, but profile failed." };
-//       }
-
-//       // 3. Log them in automatically!
-//       // admin.createUser doesn't set a session, so we do it now.
-//       const { error: loginError } = await supabase.auth.signInWithPassword({
-//         email: normalizedEmail,
-//         password: password,
-//       });
-
-//       if (loginError) return { success: false, message: "Account created, please log in." };
-//     }
-
-//     return {
-//       success: true,
-//       message: "Welcome to Salmera Haven!",
-//     };
-//   } catch (err) {
-//     return { success: false, message: "An unexpected error occurred." };
-//   }
-// }

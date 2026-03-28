@@ -1,16 +1,73 @@
 "use client";
 
+import { login } from "@/app/actions/authActions";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { useState } from "react";
+import toast from "react-hot-toast";
 import { FaRegEye, FaRegEyeSlash } from "react-icons/fa";
 import { FiLock } from "react-icons/fi";
 import { MdOutlineEmail } from "react-icons/md";
 
 function LoginForm() {
   const [showPassword, setShowPassword] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+  const router = useRouter();
+
+  // async function handleSignin(formData: FormData) {
+  //   const email = formData.get("email") as string;
+  //   const password = formData.get("password") as string;
+
+  //   setIsLoading(true);
+  //   const toastId = toast.loading("Signing you in...");
+
+  //   // Call your Supabase login logic (Server Action)
+  //   const result = await login(email, password);
+
+  //   if (!result.success) {
+  //     toast.error(result.message, { id: toastId });
+  //     setIsLoading(false);
+  //   } else {
+  //     toast.success("You are logged in!", { id: toastId });
+  //     router.push("/");
+  //     router.refresh();
+  //   }
+  // }
+
+  async function handleSignin(e: React.FormEvent<HTMLFormElement>) {
+    e.preventDefault(); // Stop the default reload
+
+    setIsLoading(true);
+    const toastId = toast.loading("Verifying your credentials...");
+
+    // 2. Extract formData manually from the form
+    const formData = new FormData(e.currentTarget);
+    const email = formData.get("email") as string;
+    const password = formData.get("password") as string;
+
+    try {
+      const result = await login(email, password);
+
+      if (!result.success) {
+        toast.error(result.message, { id: toastId });
+        setIsLoading(false); // Only stop loading if it failed
+      } else {
+        toast.success("Welcome back to Salmera Haven!", {
+          id: toastId,
+          duration: 3000,
+        });
+        router.push("/");
+        router.refresh();
+      }
+    } catch (err) {
+      toast.error("An error occurred", { id: toastId });
+      setIsLoading(false);
+    }
+  }
 
   return (
-    <form className="space-y-5">
+    <form onSubmit={handleSignin} className="space-y-5">
+      {/* <form action={handleSignin} className="space-y-5"> */}
       {/* Email Field */}
       <div className="group flex flex-col gap-1">
         <label className="text-sm font-medium text-stone-700 transition-colors group-has-focus:text-blue-500">
@@ -19,6 +76,8 @@ function LoginForm() {
         <div className="relative">
           <input
             type="email"
+            name="email"
+            defaultValue={"gbengaclarke@gmail.com"}
             required
             placeholder="name@example.com"
             className="w-full rounded-lg border border-stone-300 bg-white/50 py-3 pr-4 pl-10 text-stone-700 transition-all outline-none hover:border-blue-300 focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
@@ -36,6 +95,8 @@ function LoginForm() {
           <input
             type={showPassword ? "text" : "password"}
             required
+            defaultValue={"aaa1%AAA"}
+            name="password"
             placeholder="••••••••"
             className="w-full rounded-lg border border-stone-300 bg-white/50 py-3 pr-12 pl-10 text-stone-700 transition-all outline-none hover:border-blue-300 focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
           />
@@ -65,11 +126,19 @@ function LoginForm() {
         </Link>
       </div>
 
-      <button
+      {/* <button
         type="submit"
         className="w-full cursor-pointer rounded-lg bg-blue-500 py-3 font-semibold text-white transition-all hover:bg-blue-600 active:scale-[0.98]"
       >
         Sign In
+      </button> */}
+
+      <button
+        type="submit"
+        disabled={isLoading}
+        className={`w-full cursor-pointer rounded-lg py-3 font-semibold text-white transition-all ${isLoading ? "cursor-not-allowed bg-blue-300" : "bg-blue-500 hover:bg-blue-600 active:scale-[0.98]"}`}
+      >
+        {isLoading ? "Signing In..." : "Sign In"}
       </button>
     </form>
   );
