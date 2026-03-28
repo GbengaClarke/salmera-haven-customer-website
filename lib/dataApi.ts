@@ -1,15 +1,5 @@
 import { supabase } from "./supabase";
 
-// export async function getUser(email: string) {
-//   const { data } = await supabase
-//     .from("guests")
-//     .select("*")
-//     .ilike("email", email)
-//     .single();
-
-//   return data;
-// }
-
 export async function getUser(email: string) {
   const { data, error } = await supabase
     .from("guests")

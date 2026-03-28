@@ -1,6 +1,7 @@
 "use client";
 
 import { login } from "@/app/actions/authActions";
+import { signIn } from "next-auth/react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
@@ -14,28 +15,8 @@ function LoginForm() {
   const [isLoading, setIsLoading] = useState(false);
   const router = useRouter();
 
-  // async function handleSignin(formData: FormData) {
-  //   const email = formData.get("email") as string;
-  //   const password = formData.get("password") as string;
-
-  //   setIsLoading(true);
-  //   const toastId = toast.loading("Signing you in...");
-
-  //   // Call your Supabase login logic (Server Action)
-  //   const result = await login(email, password);
-
-  //   if (!result.success) {
-  //     toast.error(result.message, { id: toastId });
-  //     setIsLoading(false);
-  //   } else {
-  //     toast.success("You are logged in!", { id: toastId });
-  //     router.push("/");
-  //     router.refresh();
-  //   }
-  // }
-
   async function handleSignin(e: React.FormEvent<HTMLFormElement>) {
-    e.preventDefault(); // Stop the default reload
+    e.preventDefault();
 
     setIsLoading(true);
     const toastId = toast.loading("Verifying your credentials...");
@@ -45,25 +26,52 @@ function LoginForm() {
     const email = formData.get("email") as string;
     const password = formData.get("password") as string;
 
-    try {
-      const result = await login(email, password);
+    // This triggers the 'authorize' function in your auth config
+    const result = await signIn("credentials", {
+      email,
+      password,
+      redirect: false, // Prevent automatic reload for toast
+    });
 
-      if (!result.success) {
-        toast.error(result.message, { id: toastId });
-        setIsLoading(false); // Only stop loading if it failed
-      } else {
-        toast.success("Welcome back to Salmera Haven!", {
-          id: toastId,
-          duration: 3000,
-        });
-        router.push("/");
-        router.refresh();
-      }
-    } catch (err) {
-      toast.error("An error occurred", { id: toastId });
+    if (result?.error) {
       setIsLoading(false);
+      toast.error("Invalid credentials. Please, try again", { id: toastId });
+    } else {
+      toast.success("Welcome back to Salmera Haven!", { id: toastId });
+      router.push("/");
+      router.refresh();
     }
   }
+  // async function handleSignin(e: React.FormEvent<HTMLFormElement>) {
+  //   e.preventDefault(); // Stop the default reload
+
+  //   setIsLoading(true);
+  //   const toastId = toast.loading("Verifying your credentials...");
+
+  //   // 2. Extract formData manually from the form
+  //   const formData = new FormData(e.currentTarget);
+  //   const email = formData.get("email") as string;
+  //   const password = formData.get("password") as string;
+
+  //   try {
+  //     const result = await login(email, password);
+
+  //     if (!result.success) {
+  //       toast.error(result.message, { id: toastId });
+  //       setIsLoading(false); // Only stop loading if it failed
+  //     } else {
+  //       toast.success("Welcome back to Salmera Haven!", {
+  //         id: toastId,
+  //         duration: 3000,
+  //       });
+  //       router.push("/");
+  //       router.refresh();
+  //     }
+  //   } catch (err) {
+  //     toast.error("An error occurred", { id: toastId });
+  //     setIsLoading(false);
+  //   }
+  // }
 
   return (
     <form onSubmit={handleSignin} className="space-y-5">
