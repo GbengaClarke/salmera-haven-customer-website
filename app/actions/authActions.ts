@@ -4,11 +4,12 @@ import { getExistingOTP } from "@/lib/dataApi";
 import { supabase } from "@/lib/supabase";
 import { revalidatePath } from "next/cache";
 import nodemailer from "nodemailer";
+import { maskEmail } from "../helpers/utils";
 
 const transporter = nodemailer.createTransport({
   service: "gmail",
   auth: {
-    user: "gbclarkee@gmail.com",
+    user: "no.reply.notivication@gmail.com",
     pass: process.env.GMAIL_APP_PASSWORD,
   },
 });
@@ -39,7 +40,7 @@ export async function sendEmailOTP(otp: string, email: string) {
 
     // Send Email
     await transporter.sendMail({
-      from: '"Salmera Haven" <gbclarkee@gmail.com>',
+      from: '"Salmera Haven" <no.reply.notivication@gmail.com>',
       to: normalizedEmail,
       subject: "Verify your Account on Salmera Haven",
       html: `
@@ -88,4 +89,29 @@ export async function login(email: string, password: string) {
 
   //  Return success
   return { success: true, message: "You are logged in!" };
+}
+
+export async function forgotPassword(email: string) {
+  const isEmailValid = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+
+  if (!isEmailValid) {
+    return { success: false, message: "Input a valid email address" };
+  }
+
+  return {
+    success: true,
+    message: `If an account exists for ${maskEmail(email)}, you’ll receive a reset link shortly.`,
+  };
+}
+
+export async function requestPasswordReset(email: string) {
+  const normalizedEmail = email.trim().toLowerCase();
+
+  const { error } = await supabase.auth.resetPasswordForEmail(normalizedEmail, {
+    // redirectTo: `http://localhost:3000/update-password`,
+    redirectTo: `${process.env.NEXTAUTH_URL}/update-password`,
+  });
+
+  if (error) return { success: false, message: error.message };
+  return { success: true, message: "Check your email for the reset link!" };
 }

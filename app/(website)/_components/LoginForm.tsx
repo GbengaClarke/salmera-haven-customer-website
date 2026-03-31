@@ -1,8 +1,11 @@
 "use client";
 
-import { login } from "@/app/actions/authActions";
+import {
+  forgotPassword,
+  requestPasswordReset,
+} from "@/app/actions/authActions";
+import { maskEmail } from "@/app/helpers/utils";
 import { signIn } from "next-auth/react";
-import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import toast from "react-hot-toast";
@@ -15,18 +18,46 @@ function LoginForm() {
   const [isLoading, setIsLoading] = useState(false);
   const router = useRouter();
 
+  async function handleForgotPassword(e: React.MouseEvent<HTMLButtonElement>) {
+    e.preventDefault();
+    const toastId = toast.loading("Checking email...");
+
+    const formData = new FormData(e.currentTarget.closest("form")!);
+    const email = formData.get("email") as string;
+
+    const resetPwInputVerification = await forgotPassword(email);
+
+    if (!resetPwInputVerification?.success) {
+      toast.error(resetPwInputVerification.message, { id: toastId });
+    }
+
+    if (resetPwInputVerification?.success) {
+      //send reset email link and redirect to update-password
+      await requestPasswordReset(email);
+
+      toast.success(
+        `If an account exists for ${maskEmail(email)}, you’ll receive a reset link shortly.`,
+        {
+          id: toastId,
+          icon: "📩",
+          duration: 4000,
+        },
+      );
+    }
+  }
+
   async function handleSignin(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
 
     setIsLoading(true);
     const toastId = toast.loading("Verifying your credentials...");
 
-    // 2. Extract formData manually from the form
+    // get formData from the form
     const formData = new FormData(e.currentTarget);
     const email = formData.get("email") as string;
     const password = formData.get("password") as string;
 
-    // This triggers the 'authorize' function in your auth config
+    //  trigger the authorize function in auth config
     const result = await signIn("credentials", {
       email,
       password,
@@ -42,36 +73,6 @@ function LoginForm() {
       router.refresh();
     }
   }
-  // async function handleSignin(e: React.FormEvent<HTMLFormElement>) {
-  //   e.preventDefault(); // Stop the default reload
-
-  //   setIsLoading(true);
-  //   const toastId = toast.loading("Verifying your credentials...");
-
-  //   // 2. Extract formData manually from the form
-  //   const formData = new FormData(e.currentTarget);
-  //   const email = formData.get("email") as string;
-  //   const password = formData.get("password") as string;
-
-  //   try {
-  //     const result = await login(email, password);
-
-  //     if (!result.success) {
-  //       toast.error(result.message, { id: toastId });
-  //       setIsLoading(false); // Only stop loading if it failed
-  //     } else {
-  //       toast.success("Welcome back to Salmera Haven!", {
-  //         id: toastId,
-  //         duration: 3000,
-  //       });
-  //       router.push("/");
-  //       router.refresh();
-  //     }
-  //   } catch (err) {
-  //     toast.error("An error occurred", { id: toastId });
-  //     setIsLoading(false);
-  //   }
-  // }
 
   return (
     <form onSubmit={handleSignin} className="space-y-5">
@@ -125,21 +126,14 @@ function LoginForm() {
         </div>
       </div>
 
-      <div className="flex items-center text-sm">
-        <Link
-          href="#"
-          className="font-semibold text-blue-500 hover:text-blue-600"
-        >
-          Forgot password?
-        </Link>
-      </div>
-
-      {/* <button
-        type="submit"
-        className="w-full cursor-pointer rounded-lg bg-blue-500 py-3 font-semibold text-white transition-all hover:bg-blue-600 active:scale-[0.98]"
+      {/* {make sure email input is filled before proceeding} */}
+      <button
+        type="button"
+        onClick={handleForgotPassword}
+        className="cursor-pointer text-sm font-semibold text-blue-500 hover:text-blue-700"
       >
-        Sign In
-      </button> */}
+        Forgot password?
+      </button>
 
       <button
         type="submit"

@@ -5,7 +5,6 @@ import { getExistingProfile, registerUser, verifyOTP } from "@/lib/dataApi";
 import { useRouter } from "next/navigation";
 import { Dispatch, SetStateAction, useState } from "react";
 import toast from "react-hot-toast";
-// import toast from "react-hot-toast";
 import { FaCheckCircle, FaRegEye, FaRegEyeSlash } from "react-icons/fa";
 import { FiLock, FiUser } from "react-icons/fi";
 import { MdOutlineEmail } from "react-icons/md";
@@ -21,7 +20,6 @@ function SignupForm({ step, setStep }: SignupFormProps) {
   const [fullName, setfullName] = useState("Gbenga Clarke");
   const [email, setEmail] = useState("clarkegbenga@gmail.com");
   const [userOtp, setuserOtp] = useState("123456");
-  // const [generatedOtp, setGeneratedOtp] = useState("");
 
   const [password, setPassword] = useState("aaa1%AAA");
   const [confirmPassword, setConfirmPassword] = useState("aaa1%AAA");
@@ -62,16 +60,18 @@ function SignupForm({ step, setStep }: SignupFormProps) {
 
     if (step === 1) {
       const genOtp = otpGenerator();
-      // setGeneratedOtp(genOtp);
 
       //check if user already has an account
       const profile = await getExistingProfile(email);
 
       if (profile.itExists) {
-        toast("An account with this email already exists. Please log in.", {
+        toast("An account with this email already exists. Proceed to log in.", {
           id: toastId,
           icon: "⚠️",
         });
+
+        //route to login page
+        router.push("/login");
 
         setIsLoading(false);
 

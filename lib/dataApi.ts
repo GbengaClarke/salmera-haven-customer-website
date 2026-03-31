@@ -15,6 +15,21 @@ export async function getUser(email: string) {
   return data;
 }
 
+export async function getGuestUserEmail(email: string) {
+  const { data, error } = await supabase
+    .from("guests")
+    .select("email")
+    .eq("email", email.toLowerCase())
+    .maybeSingle();
+
+  if (error) {
+    console.error("Database Error:", error.message);
+    throw new Error("Failed to get user");
+  }
+
+  return data;
+}
+
 export async function getExistingProfile(email: string) {
   const { data: existingProfile, error } = await supabase
     .from("profiles")
@@ -172,7 +187,6 @@ export async function registerUser({
     }
 
     // Insert into guests table
-
     if (!existingGuest && data.user) {
       const { error: dbError } = await supabase.from("guests").insert({
         email: normalizedEmail,
@@ -190,6 +204,7 @@ export async function registerUser({
       message: "Account created! Proceed to log into your account.",
     };
   } catch (err) {
+    console.error(err);
     return { success: false, message: "An unexpected error occurred." };
   }
 }
