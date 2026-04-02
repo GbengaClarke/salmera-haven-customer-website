@@ -36,11 +36,11 @@ function LoginForm() {
       await requestPasswordReset(email);
 
       toast.success(
-        `If an account exists for ${maskEmail(email)}, you’ll receive a reset link shortly.`,
+        `If an account exists for ${maskEmail(email)}, you will receive a reset link shortly.`,
         {
           id: toastId,
           icon: "📩",
-          duration: 4000,
+          duration: 8000,
         },
       );
     }

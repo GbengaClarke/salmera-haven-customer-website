@@ -68,6 +68,7 @@ function SignupForm({ step, setStep }: SignupFormProps) {
         toast("An account with this email already exists. Proceed to log in.", {
           id: toastId,
           icon: "⚠️",
+          duration: 6000,
         });
 
         //route to login page

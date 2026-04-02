@@ -1,23 +1,27 @@
 @import "tailwindcss";
 
-@keyframes shake {
-  0%,
-  100% {
-    transform: translateX(0);
+/* @theme {
+  --font-cormorant: var(--font-heading);
+} */
+
+@layer utilities {
+  .font-cormorant {
+    font-family: var(--font-heading);
   }
-  25% {
-    transform: translateX(-5px);
+
+  .brd {
+    border: 1px solid red;
   }
-  75% {
-    transform: translateX(5px);
+
+  .brb {
+    border: 1px solid blue;
   }
 }
 
-.animate-shake {
-  animation: shake 0.2s ease-in-out 0s 2;
+/* @utility brd {
+  @apply border border-solid border-red-500;
 }
 
-.brd {
-  border: 1px solid red !important;
-  /* outline-offset: -2px; */
-}
+@utility brb {
+  @apply border border-solid border-blue-500;
+} */
