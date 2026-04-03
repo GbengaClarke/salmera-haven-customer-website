@@ -13,7 +13,7 @@ export type HeaderType = {
 
 function Header({ user }: HeaderType) {
   return (
-    <header className="fixed top-0 right-0 left-0 mx-auto flex h-16 max-w-7xl items-center justify-between gap-2 border-b border-indigo-500/20 bg-slate-950 px-3 text-xl font-bold md:px-5">
+    <header className="fixed top-0 right-0 left-0 z-999 mx-auto flex h-16 max-w-7xl items-center justify-between gap-2 border-b border-indigo-500/20 bg-slate-950 px-3 text-xl font-bold md:px-5">
       <Link href={"/"}>
         <CompanyLogo
           imageSize="h-8 w-10"
