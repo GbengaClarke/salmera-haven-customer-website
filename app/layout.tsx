@@ -1,5 +1,5 @@
 import { Metadata } from "next";
-import "./globals.css";
+import "@/app/globals.css";
 import { Toaster } from "react-hot-toast";
 import { Inter, Cormorant_Garamond } from "next/font/google";
 

@@ -4,7 +4,7 @@
   --font-cormorant: var(--font-heading);
 } */
 
-@layer utilities {
+@layer components {
   .font-cormorant {
     font-family: var(--font-heading);
   }
