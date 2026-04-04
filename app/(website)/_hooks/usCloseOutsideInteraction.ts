@@ -16,12 +16,13 @@ export function useOutsideInteraction(
     };
 
     const handleScroll = () => {
-      onInteraction();
+      if (active) onInteraction();
     };
 
     // Add listeners
-    document.addEventListener("mousedown", handleInteraction);
-    document.addEventListener("touchstart", handleInteraction);
+    // document.addEventListener("mousedown", handleInteraction);
+    // document.addEventListener("touchstart", handleInteraction);
+    document.addEventListener("pointerdown", handleInteraction);
     window.addEventListener("scroll", handleScroll, { passive: true });
 
     return () => {

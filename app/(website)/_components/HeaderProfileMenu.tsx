@@ -2,7 +2,7 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { useState, useRef } from "react";
+import { useState, useRef, useCallback } from "react";
 import { FaPeopleRoof } from "react-icons/fa6";
 import { IoIosLogIn, IoMdClose } from "react-icons/io";
 import { IoMenu } from "react-icons/io5";
@@ -31,7 +31,11 @@ function HeaderProfileMenu({ user }: HeaderType) {
     : "";
 
   // Close menu on click outside or scroll
-  useOutsideInteraction(menuRef, () => setIsOpen(false), isOpen);
+  const closeMenu = useCallback(() => {
+    setIsOpen(false);
+  }, []);
+  
+  useOutsideInteraction(menuRef, closeMenu, isOpen);
 
   async function handleSignOut() {
     const toastId = toast.loading("Signing you out...");
@@ -96,9 +100,9 @@ function HeaderProfileMenu({ user }: HeaderType) {
         </button>
 
         <div
-          className={`absolute top-16 right-0 z-40 w-64 rounded-xl border border-white/10 bg-slate-900/90 p-4 font-semibold shadow-2xl backdrop-blur-xl transition-all duration-300 ease-in-out ${
+          className={`absolute top-16 right-0 z-40 w-64 rounded-xl border border-white/10 bg-slate-900/90 p-4 font-semibold shadow-2xl  transition-all duration-300 ease-in-out ${
             isOpen
-              ? "translate-x-0 opacity-100"
+              ? "translate-x-0 opacity-100 backdrop-blur-md"
               : "pointer-events-none translate-x-10 opacity-0"
           }`}
         >

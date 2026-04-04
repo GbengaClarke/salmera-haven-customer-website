@@ -3,15 +3,20 @@ import { Metadata } from "next";
 import LogoutButton from "./_components/LogoutButton";
 import { auth } from "@/lib/auth";
 import HeroSlider from "./_components/HeroSlider";
+import IntroSection from "./_components/IntroSection";
+import FeaturedRooms from "./_components/FeaturedRooms";
+import AdvertSection from "./_components/AdvertSection";
 
 export const metadata: Metadata = {
   title: "Home",
 };
 
 export default async function Homepage() {
-  const session = await auth();
 
-  const user = session?.user;
+  //remove api and pass within as prop from layout?
+  // const session = await auth();
+
+  // const user = session?.user;
 
   // console.log(user);
   return (
@@ -19,10 +24,16 @@ export default async function Homepage() {
       <section className="">
         <HeroSlider />
 
-        <h1 className="m-2 rounded p-4 shadow">
+        <main className="mx-4x">
+          <IntroSection />
+          
+          <FeaturedRooms />
+          
+          <AdvertSection/>
+        {/* <h1 className="m-2 rounded p-4 shadow">
           welcome to the home page{"   "}
           <strong>{user ? `${user?.name}, ${user?.email}` : "no user"}</strong>
-        </h1>
+        </h1> */}
 
         <Link className="text-blue-700" href={"/login"}>
           log in
@@ -33,6 +44,7 @@ export default async function Homepage() {
           </Link>
         </div>
         <LogoutButton />
+</main>
       </section>
     </div>
   );
