@@ -40,7 +40,7 @@ export default function IntroSection() {
             <div className="space-y-4">
               <h1 className="font-cormorant  text-4xl leading-tight tracking-tight text-white md:text-7xl whitespace-nowrap">
                 Experience the Art of <br />
-                <span className="italic text-slate-400">Refined Living</span>
+                <span className="italic text-slate-200x text-emerald-200 ">Refined Living</span>
               </h1>
               <div className="h-px w-24 bg-slate-700" />
             </div>
@@ -58,7 +58,7 @@ export default function IntroSection() {
                 key={index} 
                 className="flex items-center gap-3 group cursor-default"
               >
-                <div className="text-slate-200 transition-colors duration-300 group-hover:text-white">
+                <div className="text-slate-200x text-amber-500 transition-colors duration-300 group-hover:text-amber-400">
                   {item.icon}
                 </div>
                 

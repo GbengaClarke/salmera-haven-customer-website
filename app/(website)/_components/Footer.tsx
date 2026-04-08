@@ -2,6 +2,8 @@
 
 import { FaFacebookF,  FaInstagram, FaLinkedinIn } from "react-icons/fa";
 import { FaXTwitter } from "react-icons/fa6";
+import CompanyLogo from "./CompanyLogo";
+import Image from "next/image";
 
 const FOOTER_LINKS = {
   navigation: [
@@ -20,16 +22,32 @@ const FOOTER_LINKS = {
 
 export default function Footer() {
   return (
-    <footer className="bg-indigo-950 text-slate-300 border-t border-white/5">
-      <div className="mx-auto max-w-7xl px-6 py-16 md:py-24">
+    <footer className="bg-indigo-950 text-slate-300 border-t  mt-6 border-white/5">
+      <div className="mx-auto max-w-7xl  px-6 py-16 md:py-24">
         
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12 lg:gap-8">
+        <div className="grid grid-cols-1  md:grid-cols-2 lg:grid-cols-4 gap-12 lg:gap-8">
           
           {/* Column 1: Brand & Bio */}
           <div className="space-y-6">
-            <h2 className="font-cormorant text-3xl text-white tracking-widest uppercase">
+
+            <div className="flex items-center gap-1">
+
+                <div className="relative h-15 w-17 overflow-hidden shadow-2xl">
+                            <Image 
+                              src="/icon.png" 
+                              alt="Luxury Interior Detail" 
+                              fill
+                                sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
+                              className=" object-contain transition-transform duration-700 hover:scale-105"
+                            />
+                          </div>
+            <h2 className="font-cormorant text-3xl whitespace-nowrap text-white tracking-widest uppercase">
               Salmera Haven
             </h2>
+
+          </div>
+{/* <CompanyLogo contStyle="gap-2" imageSize="h-13 w-15" textStyle="font-cormorant whitespace-nowrap text-3xl text-white tracking-widest uppercase"/> */}
+
             <p className="font-light leading-relaxed text-sm text-slate-400 max-w-xs">
               Redefining luxury living through architectural elegance and 
               unparalleled service. Your sanctuary, meticulously crafted.
