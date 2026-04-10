@@ -17,3 +17,14 @@ export const maskEmail = (email: string) => {
 export function otpGenerator() {
   return Math.floor(100000 + Math.random() * 900000).toString();
 }
+
+// Sets time to 00:00:00 locally
+export function adjustDate(date: Date | undefined) {
+  if (!date) return null;
+
+  const year = date.getFullYear();
+  const month = date.getMonth();
+  const day = date.getDate();
+
+  return new Date(Date.UTC(year, month, day)).toISOString();
+}

@@ -1,5 +1,6 @@
 import { Room } from "@/types/rooms";
 import Image from "next/image";
+import Link from "next/link";
 import { HiOutlineUsers, HiStar } from "react-icons/hi2";
 import { IoDiamondOutline } from "react-icons/io5";
 
@@ -31,8 +32,8 @@ export default function RoomDetails({ room }: RoomProps) {
         
         <div className="absolute top-4 left-4 sm:top-8 sm:left-8 flex items-center gap-2 sm:gap-3 bg-black/40 backdrop-blur-xl px-4 py-2 sm:px-5 sm:py-2.5 rounded-full border border-white/10 text-white">
           <HiOutlineUsers className="text-lg sm:text-xl text-amber-400" />
-          <span className="text-[10px] sm:text-xs font-bold uppercase tracking-widest">
-            Accommodates Maximun of {maxCapacity} Guests
+          <span className="text-[10px] sm:text-xs whitespace-nowrap font-bold uppercase tracking-widest">
+            Accommodates Maximum of {maxCapacity} Guests
           </span>
         </div>
 
@@ -87,9 +88,9 @@ export default function RoomDetails({ room }: RoomProps) {
             </div>
           </div>
 
-          <button className="w-full sm:w-auto bg-white text-black hover:bg-amber-400 hover:text-black px-8 py-4 sm:px-10 sm:py-5 text-[10px] sm:text-xs font-bold uppercase tracking-[0.2em] transition-all duration-500 shadow-lg active:scale-95">
+          <Link href={'#reserve'} className="w-full sm:w-auto bg-white text-black hover:bg-indigo-400 text-center  hover:text-black px-8 py-4 sm:px-10 sm:py-5 text-[10px] sm:text-xs font-bold uppercase tracking-[0.2em] transition-all duration-500 shadow-lg active:scale-95">
             Book Experience &#9660;
-          </button>
+          </Link>
         </div>
       </div>
     </section>

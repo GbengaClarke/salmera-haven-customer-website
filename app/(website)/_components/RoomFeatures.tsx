@@ -72,6 +72,7 @@ export default function RoomFeatures() {
           </div>
         ))}
       </div>
+      <div id="reserve"></div>
     </section>
   );
 }
