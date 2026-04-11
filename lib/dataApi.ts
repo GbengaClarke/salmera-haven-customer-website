@@ -208,3 +208,22 @@ export async function registerUser({
     return { success: false, message: "An unexpected error occurred." };
   }
 }
+
+export async function getSettings() {
+  const { data, error } = await supabase.from("settings").select("*");
+
+  if (error) {
+    console.error(error);
+    return {
+      success: false,
+      message: "The settings could not be loaded ",
+      settings: null,
+    };
+  }
+
+  return {
+    success: true,
+    message: "Settings successfully loaded",
+    settings: data,
+  };
+}

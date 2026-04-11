@@ -28,3 +28,12 @@ export function adjustDate(date: Date | undefined) {
 
   return new Date(Date.UTC(year, month, day)).toISOString();
 }
+
+export const formatCurrency = (value: number) => {
+  return new Intl.NumberFormat("en-US", {
+    style: "currency",
+    currency: "USD",
+    minimumFractionDigits: 0,
+    maximumFractionDigits: 2,
+  }).format(value);
+};

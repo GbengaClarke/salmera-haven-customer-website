@@ -1,40 +1,92 @@
 "use client";
 
 import { createBooking } from "@/app/actions/actions";
-import { Room } from "@/types/rooms";
+import { Room, Settings } from "@/types/rooms";
 import { HiCheck, HiOutlineInformationCircle } from "react-icons/hi2";
 import FormButton from "./FormButton";
 import DateSelector from "./DateSelector";
-import { useState } from "react";
+import { useMemo, useRef, useState } from "react";
 import { DateRange } from "react-day-picker";
-import { adjustDate } from "@/app/helpers/utils";
+import { adjustDate, formatCurrency } from "@/app/helpers/utils";
 import { differenceInDays } from "date-fns";
 
 interface MakeReservationProps {
   room: Room;
+  settings: Settings[];
 }
 
-export default function MakeReservation({ room }: MakeReservationProps) {
+export default function MakeReservation({
+  room,
+  settings,
+}: MakeReservationProps) {
   const [range, setRange] = useState<DateRange | undefined>({
     to: undefined,
     from: undefined,
   });
 
+  const { breakfastPrice, maxBookingLength } = settings[0];
+
   const [hasBreakfast, setHasBreakfast] = useState(false);
+  const [numGuests, setNumGuests] = useState(2);
+  const formRef = useRef<HTMLFormElement>(null);
 
-  console.log(hasBreakfast);
+  async function handleBooking(formData: FormData) {
+    // Call the server action
+    await createBooking(formData);
 
-  const { maxCapacity, name, regularPrice } = room;
+    // Reset React State
+    setRange({ to: undefined, from: undefined });
+    setHasBreakfast(false);
+    setNumGuests(2);
 
-  const startDate = adjustDate(range?.from);
-  const endDate = adjustDate(range?.to);
+    // Reset the HTML Form (clears the textarea/inputs)
+    formRef.current?.reset();
 
+    // Optional: Add a success toast here if you have one
+    //redirect to booking confirmed page
+  }
+
+  // console.log(range);
+
+  const { maxCapacity, name, discount, regularPrice } = room;
   const numNights =
     range?.from && range?.to
       ? Math.max(1, differenceInDays(range.to, range.from))
       : 0;
 
-  // console.log(numNights);
+  const breakfastPricePerNight = breakfastPrice;
+
+  const priceSummary = useMemo(() => {
+    const roomPricePerNight = regularPrice - discount;
+    const roomsTotalPrice = numNights * roomPricePerNight;
+
+    const extraPrice = hasBreakfast
+      ? numNights > 0
+        ? breakfastPricePerNight * numNights * numGuests
+        : range?.from
+          ? breakfastPricePerNight * numGuests
+          : 0
+      : 0;
+
+    const finalTotal =
+      range?.from && !range.to
+        ? roomPricePerNight + extraPrice
+        : roomsTotalPrice + extraPrice;
+
+    return { roomPricePerNight, roomsTotalPrice, extraPrice, finalTotal };
+  }, [
+    numNights,
+    hasBreakfast,
+    regularPrice,
+    numGuests,
+    discount,
+    range?.from,
+    range?.to,
+    breakfastPricePerNight,
+  ]);
+
+  const startDate = adjustDate(range?.from);
+  const endDate = adjustDate(range?.to);
 
   return (
     <section className="mt-8 mb-24 border-t border-white/5 pt-8">
@@ -62,17 +114,14 @@ export default function MakeReservation({ room }: MakeReservationProps) {
         </div>
       </div>
 
-      {/* The Unified Card */}
       <div className="overflow-hidden rounded-lg border border-white/5 bg-[#0a0f1d] shadow-2xl">
         <div className="grid grid-cols-1 lg:grid-cols-[1fr_350px]">
-          {/* Left Side: Large Integrated Calendar Space */}
           <div className="bg-white/2 p-8 lg:p-12">
             <div className="flex h-full min-h-112.5 w-full flex-col items-center justify-center border-white/10">
               <span className="mb-4 text-[11px] tracking-[0.4em] text-slate-400 uppercase">
                 Select Dates
               </span>
               <div className="h-px w-12 bg-white/10"></div>
-              {/* CALENDAR WILL RENDER HERE */}
 
               <DateSelector
                 room={room}
@@ -80,38 +129,57 @@ export default function MakeReservation({ room }: MakeReservationProps) {
                 setRange={setRange}
                 hasBreakfast={hasBreakfast}
                 numNights={numNights}
+                priceSummary={priceSummary}
+                maxBookingLength={maxBookingLength}
               />
             </div>
           </div>
 
-          {/* Right Side: Action Sidebar */}
           <div className="border-l border-white/5 bg-white/5 p-8 lg:p-10">
-            {/* {roomPrice, extraPrice, totalPrice
-            
-            
-            } */}
             <form
-              action={createBooking}
+              action={handleBooking}
+              ref={formRef}
               className="flex h-full flex-col space-y-8"
             >
               <input
                 name={"startdate"}
-                // readOnly
-                defaultValue={startDate || ""}
+                readOnly
+                value={startDate || ""}
                 type="text"
                 className="hidden"
               />
               <input
                 name={"endDate"}
-                // readOnly
-                defaultValue={endDate || ""}
+                readOnly
+                value={endDate || ""}
                 type="text"
                 className="hidden"
               />
               <input
                 name={"numNights"}
-                // readOnly
-                defaultValue={numNights || ""}
+                readOnly
+                value={numNights || ""}
+                type="text"
+                className="hidden"
+              />
+              <input
+                name={"totalPrice"}
+                readOnly
+                value={priceSummary.finalTotal || ""}
+                type="text"
+                className="hidden"
+              />
+              <input
+                name={"extraPrice"}
+                readOnly
+                value={priceSummary.extraPrice || ""}
+                type="text"
+                className="hidden"
+              />
+              <input
+                name={"roomPrice"}
+                readOnly
+                value={regularPrice || ""}
                 type="text"
                 className="hidden"
               />
@@ -121,10 +189,11 @@ export default function MakeReservation({ room }: MakeReservationProps) {
                   <label className="text-[10px] font-bold tracking-[0.2em] text-slate-400 uppercase">
                     Guest Count
                   </label>
+
                   <select
                     name="numGuests"
-                    // value={1}
-                    defaultValue={2}
+                    value={numGuests}
+                    onChange={(e) => setNumGuests(Number(e.target.value))}
                     className="w-full cursor-pointer rounded-sm border border-white/10 bg-black/40 p-4 text-sm text-white transition-all outline-none hover:border-indigo-500/30 focus:border-indigo-500"
                     required
                   >
@@ -145,14 +214,18 @@ export default function MakeReservation({ room }: MakeReservationProps) {
                   <div className="flex flex-col">
                     <label
                       htmlFor="breakfast"
-                      className="cursor-pointer text-[10px] font-bold tracking-[0.2em] text-white uppercase"
+                      className={`cursor-pointer text-[10px] font-bold tracking-[0.2em] text-white uppercase`}
                     >
                       Tasty Breakfast
                     </label>
                     <p className="mt-1 text-[10px] tracking-widest text-slate-500 uppercase">
-                      {/* {Chef-prepared local delicacies} */}
-                      $10 per night{" "}
-                      <span className="text-slate-300">(+$200)</span>
+                      ${breakfastPricePerNight} per night{" "}
+                      {range?.from && (
+                        <span className="text-slate-300x text-emerald-200">
+                          (+$
+                          {breakfastPricePerNight * numNights * numGuests})
+                        </span>
+                      )}
                     </p>
                   </div>
                   <div className="relative flex items-center">
@@ -160,7 +233,8 @@ export default function MakeReservation({ room }: MakeReservationProps) {
                       type="checkbox"
                       id="breakfast"
                       name="hasBreakfast"
-                      value={String(hasBreakfast)}
+                      // value={String(hasBreakfast)}
+                      checked={hasBreakfast}
                       onChange={() => setHasBreakfast(!hasBreakfast)}
                       className="peer h-6 w-6 cursor-pointer appearance-none rounded-sm border border-white/20 bg-[#0a0f1d] transition-all checked:border-indigo-600 checked:bg-indigo-600"
                     />
@@ -183,12 +257,19 @@ export default function MakeReservation({ room }: MakeReservationProps) {
               <div className="mt-auto pt-8">
                 <FormButton
                   loadingText="Reserving Suite..."
-                  staticText="Reserve Suite: $5,490"
-                  buttonStyle="w-full bg-white text-black hover:bg-indigo-400 hover:text-black py-5 text-[12px] font-bold uppercase tracking-[0.3em] transition-all duration-500 shadow-xl active:scale-[0.98]"
+                  disabled={!range?.from}
+                  staticText={
+                    range?.from
+                      ? `Reserve Suite: ${formatCurrency(priceSummary.finalTotal)}`
+                      : "Select date to reserve suite"
+                  }
+                  buttonStyle={`w-full py-5 text-[12px] font-bold uppercase tracking-[0.3em] transition-all duration-500 shadow-xl 
+      ${
+        range?.from
+          ? "bg-white text-black hover:bg-indigo-400 active:scale-[0.98]"
+          : "bg-slate-800 text-slate-500 cursor-not-allowed"
+      }`}
                 />
-                <p className="mt-4 text-center text-[9px] tracking-widest text-slate-600 uppercase">
-                  No credit card required today
-                </p>
               </div>
             </form>
           </div>

@@ -1,6 +1,6 @@
 export type Room = {
-  id: number 
-  created_at?: string; 
+  id: number;
+  created_at?: string;
   name: string;
   maxCapacity: number;
   regularPrice: number;
@@ -8,3 +8,13 @@ export type Room = {
   description?: string;
   image: string;
 };
+
+export interface Settings {
+  id: number;
+  created_at: string;
+  maxBookingLength: number;
+  maxGuests: number;
+  maxActiveBookingsPerGuest: number;
+  breakfastPrice: number;
+  revenueTarget: number;
+}
