@@ -14,6 +14,8 @@ interface DateSelectorProps {
   hasBreakfast: boolean;
   numNights: number;
   maxBookingLength: number;
+  isLoading: boolean;
+
   priceSummary: {
     roomPricePerNight: number;
     roomsTotalPrice: number;
@@ -30,6 +32,7 @@ export default function DateSelector({
   numNights,
   priceSummary,
   maxBookingLength,
+  isLoading,
 }: DateSelectorProps) {
   const { roomPricePerNight, roomsTotalPrice, extraPrice, finalTotal } =
     priceSummary;
@@ -117,10 +120,15 @@ export default function DateSelector({
           {range?.from || range?.to ? (
             <button
               type="button"
-              className="w-full rounded-md border-indigo-400 bg-indigo-500/20 px-8 py-3 text-[10px] font-bold tracking-[0.25em] text-white uppercase transition-all hover:bg-indigo-500 hover:shadow-[0_0_15px_rgba(99,102,241,0.4)] active:scale-95 md:w-auto"
+              disabled={isLoading}
               onClick={() => setRange({ from: undefined, to: undefined })}
+              className={`w-full rounded-md border-indigo-400 px-8 py-3 text-[10px] font-bold tracking-[0.25em] text-white uppercase transition-all md:w-auto ${
+                isLoading
+                  ? "cursor-not-allowed bg-indigo-500/10 opacity-50 grayscale"
+                  : "bg-indigo-500/20 hover:bg-indigo-500 hover:shadow-[0_0_15px_rgba(99,102,241,0.4)] active:scale-95"
+              }`}
             >
-              Clear Selection
+              {isLoading ? "Awaiting Reservation..." : "Clear Selection"}
             </button>
           ) : (
             <span className="animate-pulse text-[10px] font-bold tracking-[0.3em] text-indigo-300/80 uppercase">

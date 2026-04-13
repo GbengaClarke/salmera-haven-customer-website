@@ -5,17 +5,11 @@ import RoomDetails from "../../_components/RoomDetails";
 import RoomFeatures from "../../_components/RoomFeatures";
 import MakeReservation from "../../_components/MakeReservation";
 import { getSettings } from "@/lib/dataApi";
+import { auth } from "@/lib/auth";
 
 export const metadata: Metadata = {
   title: "Reserve Room",
 };
-
-// export async function generateMetadata({params}: { params: Promise<{ roomId: string }> }) {
-//   const { roomId } = await params
-
-//   return {title: `Reserve Room ${roomId}`}
-
-// }
 
 export async function generateStaticParams() {
   const { success, rooms } = await getRooms();
@@ -29,7 +23,8 @@ export async function generateStaticParams() {
 
 async function RoomPage({ params }: { params: Promise<{ roomId: string }> }) {
   const { roomId } = await params;
-  const [roomData, settingsData] = await Promise.all([
+  const [session, roomData, settingsData] = await Promise.all([
+    auth(),
     getRoom(roomId),
     getSettings(),
   ]);
@@ -37,7 +32,7 @@ async function RoomPage({ params }: { params: Promise<{ roomId: string }> }) {
   const { room } = roomData;
   const { settings, success } = settingsData;
 
-  // console.log(settings);
+  // console.log(session);
 
   //edit!!! use toast?
   if (!success || !settings) {
@@ -50,7 +45,7 @@ async function RoomPage({ params }: { params: Promise<{ roomId: string }> }) {
     <div>
       <RoomDetails room={room} />
       <RoomFeatures />
-      <MakeReservation room={room} settings={settings} />
+      <MakeReservation room={room} settings={settings} user={session?.user} />
     </div>
   );
 }

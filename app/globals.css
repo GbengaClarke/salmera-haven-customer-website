@@ -18,25 +18,3 @@
     border: 1px solid blue;
   }
 }
-
-/* Overriding react-day-picker internal variables */
-.rdp {
-  /* This changes the primary "Selected" color */
-  --rdp-accent-color: #4f46e5 !important; /* Indigo 600 */
-
-  /* This changes the "Range Middle" background */
-  --rdp-range_middle-background-color: #1e1b4b !important; /* Indigo 900 */
-
-  /* This changes the "Range Middle" text color */
-  --rdp-range_middle-color: #c7d2fe !important; /* Indigo 200 */
-
-  /* Standard overrides for Today and Hover */
-  & .rdp-day_today {
-    color: #f59e0b !important; /* Amber 500 */
-    font-weight: bold !important;
-  }
-
-  & .rdp-day:hover:not(.rdp-day_selected) {
-    background-color: rgba(255, 255, 255, 0.1) !important;
-  }
-}

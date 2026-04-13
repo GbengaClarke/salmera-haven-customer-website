@@ -227,3 +227,13 @@ export async function getSettings() {
     settings: data,
   };
 }
+
+export async function getGuest(email: string) {
+  const { data, error } = await supabase
+    .from("guests")
+    .select("*")
+    .eq("email", email)
+    .single();
+
+  return data;
+}

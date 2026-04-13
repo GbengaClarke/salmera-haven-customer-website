@@ -3,7 +3,7 @@ import Google from "next-auth/providers/google";
 import Facebook from "next-auth/providers/facebook";
 import LinkedIn from "next-auth/providers/linkedin";
 import CredentialsProvider from "next-auth/providers/credentials";
-import { createUser, getUser } from "./dataApi";
+import { createUser, getGuest, getUser } from "./dataApi";
 import { supabase } from "./supabase";
 
 export const { handlers, signIn, signOut, auth } = NextAuth({
@@ -41,7 +41,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
           throw new Error("Invalid email or password");
         }
 
-        // user data saved into JWT/Session by nextauth
+        //  nextauth save user data into Session
         return {
           email: data.user.email,
           name: data.user.user_metadata?.full_name,
@@ -66,6 +66,23 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
       } catch {
         return false;
       }
+    },
+    async session({ session }) {
+      try {
+        if (!session.user?.email) return session;
+
+        const guest = await getGuest(session.user.email);
+
+        if (guest) {
+          session.user.guestId = guest.id;
+        } else {
+          console.warn(`No guest found for email: ${session.user.email}`);
+        }
+      } catch (error) {
+        console.error("Error in session callback fetching guest:", error);
+      }
+
+      return session;
     },
   },
   pages: { signIn: "/login" },
