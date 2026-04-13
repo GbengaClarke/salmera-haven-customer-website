@@ -308,38 +308,7 @@ export default function MakeReservation({
             )}
 
             {!user && (
-              // <div className="flex h-full flex-col items-center justify-center space-y-8 text-center">
-              //   {/* Decorative Icon or Brand Element */}
-              //   <div className="flex h-16 w-16 items-center justify-center rounded-full border border-white/10 bg-white/5 shadow-inner">
-              //     <HiOutlineInformationCircle className="text-3xl text-amber-200/50" />
-              //   </div>
-
-              //   <div className="space-y-3">
-              //     <h3 className="font-cormorant text-3xl tracking-wide text-white">
-              //       Your Sanctuary Awaits
-              //     </h3>
-              //     <p className="mx-auto max-w-[250px] text-[11px] leading-relaxed tracking-widest text-slate-300 uppercase">
-              //       Please sign in to complete your reservation for this suite.
-              //     </p>
-              //   </div>
-
-              //   <div className="h-px w-12 bg-white/10"></div>
-
-              //   <button
-              //     onClick={() => router.push("/login")}
-              //     className="group relative mx-auto w-full max-w-[30rem] overflow-hidden rounded-sm bg-white py-5 text-[12px] font-bold tracking-[0.3em] text-black uppercase transition-all duration-500 hover:bg-indigo-400 hover:text-white active:scale-[0.98]"
-              //   >
-              //     <span className="relative z-10">Login to Reserve</span>
-              //     <div className="absolute inset-0 z-0 bg-gradient-to-r from-transparent via-white/20 to-transparent opacity-0 transition-opacity duration-500 group-hover:opacity-100" />
-              //   </button>
-
-              //   <p className="text-[9px] font-medium tracking-[0.2em] text-slate-600 uppercase">
-              //     Secure Authenticated Booking
-              //   </p>
-              // </div>
-
               <div className="flex h-full min-h-[400px] flex-col items-center justify-center space-y-8 p-6 text-center md:p-10">
-                {/* Decorative Icon */}
                 <div className="flex h-14 w-14 items-center justify-center rounded-full border border-white/10 bg-white/5 shadow-inner md:h-16 md:w-16">
                   <HiOutlineInformationCircle className="text-2xl text-amber-200/50 md:text-3xl" />
                 </div>
@@ -355,7 +324,6 @@ export default function MakeReservation({
 
                 <div className="h-px w-10 bg-white/10"></div>
 
-                {/* Main Login Action */}
                 <div className="w-full max-w-[320px] space-y-8">
                   <button
                     onClick={() => router.push("/login")}

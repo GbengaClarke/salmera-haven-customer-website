@@ -1,5 +1,3 @@
-// "use client";
-
 import { DateRange, DayPicker } from "react-day-picker";
 import { isPast, isSameDay } from "date-fns";
 import { Room } from "@/types/rooms";
