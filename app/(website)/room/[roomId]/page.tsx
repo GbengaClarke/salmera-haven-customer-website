@@ -1,6 +1,5 @@
-import { getRoom, getRooms } from "@/lib/roomsApi";
+import { getRoom, getRoomBookedDates, getRooms } from "@/lib/roomsApi";
 import { Metadata } from "next";
-import { title } from "process";
 import RoomDetails from "../../_components/RoomDetails";
 import RoomFeatures from "../../_components/RoomFeatures";
 import MakeReservation from "../../_components/MakeReservation";
@@ -23,16 +22,19 @@ export async function generateStaticParams() {
 
 async function RoomPage({ params }: { params: Promise<{ roomId: string }> }) {
   const { roomId } = await params;
-  const [session, roomData, settingsData] = await Promise.all([
+
+  //optimize??
+  const [session, roomData, settingsData, bookedData] = await Promise.all([
     auth(),
     getRoom(roomId),
     getSettings(),
+    getRoomBookedDates(roomId),
   ]);
+
+  const bookedDatesRange = bookedData.bookedDates;
 
   const { room } = roomData;
   const { settings, success } = settingsData;
-
-  // console.log(session);
 
   //edit!!! use toast?
   if (!success || !settings) {
@@ -45,7 +47,12 @@ async function RoomPage({ params }: { params: Promise<{ roomId: string }> }) {
     <div>
       <RoomDetails room={room} />
       <RoomFeatures />
-      <MakeReservation room={room} settings={settings} user={session?.user} />
+      <MakeReservation
+        room={room}
+        settings={settings}
+        bookedDatesRange={bookedDatesRange}
+        user={session?.user}
+      />
     </div>
   );
 }

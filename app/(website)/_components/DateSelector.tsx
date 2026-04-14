@@ -1,8 +1,9 @@
 import { DateRange, DayPicker } from "react-day-picker";
-import { isPast, isSameDay } from "date-fns";
+import { isPast, isSameDay, isWithinInterval } from "date-fns";
 import { Room } from "@/types/rooms";
 import "react-day-picker/dist/style.css";
 import { formatCurrency } from "@/app/helpers/utils";
+// import { useMemo } from "react";
 
 interface DateSelectorProps {
   room: Room;
@@ -32,16 +33,45 @@ export default function DateSelector({
   maxBookingLength,
   isLoading,
 }: DateSelectorProps) {
+  // const hasConflict = useMemo(() => {
+  //   if (!range?.from || !range?.to) return false;
+
+  //   return bookedDates.some((date) =>
+  //     isWithinInterval(date, { start: range.from!, end: range.to! }),
+  //   );
+  // }, [range, bookedDates]);
+
+  // const acceptedRange = hasConflict
+  //   ? setRange({ from: range?.from, to: undefined })
+  //   : setRange(range);
+
   const { roomPricePerNight, roomsTotalPrice, extraPrice, finalTotal } =
     priceSummary;
+
+  const isRangeInvalid = (newRange: DateRange | undefined) => {
+    if (!newRange?.from || !newRange?.to) return false;
+
+    return bookedDates.some((date) =>
+      isWithinInterval(date, { start: newRange.from!, end: newRange.to! }),
+    );
+  };
+
+  const handleSelect = (newRange: DateRange | undefined) => {
+    if (isRangeInvalid(newRange)) {
+      setRange({ from: newRange?.from, to: undefined });
+    } else {
+      setRange(newRange);
+    }
+  };
 
   return (
     <div className="mt-2 flex flex-col">
       <DayPicker
         className="place-self-center pt-4"
         mode="range"
-        onSelect={setRange}
+        onSelect={handleSelect}
         selected={range}
+        // selected={acceptedRange}
         max={maxBookingLength}
         startMonth={new Date()}
         endMonth={new Date(new Date().getFullYear(), 11)}
@@ -99,11 +129,9 @@ export default function DateSelector({
                 <div className="rounded-md border border-emerald-400/30 bg-emerald-500/10 px-5 py-3 md:border-0 md:border-l md:border-white/20 md:bg-transparent md:px-0 md:py-0 md:pl-8">
                   <span className="text-[10px] font-bold tracking-[0.25em] text-emerald-400 uppercase">
                     Total{" "}
-                    {range?.from && range?.to && (
-                      <span className="whitespace-nowrap">
-                        ({numNights} {numNights <= 1 ? "Night" : "Nights"})
-                      </span>
-                    )}
+                    <span className="whitespace-nowrap">
+                      ({numNights} {numNights <= 1 ? "Night" : "Nights"})
+                    </span>
                   </span>
                   <div className="text-2xl font-black text-emerald-200 md:text-3xl md:tracking-tighter md:italic">
                     {formatCurrency(finalTotal)}

@@ -8,7 +8,7 @@ import DateSelector from "./DateSelector";
 import { useMemo, useRef, useState, useTransition } from "react";
 import { DateRange } from "react-day-picker";
 import { adjustDate, formatCurrency } from "@/app/helpers/utils";
-import { differenceInDays } from "date-fns";
+import { differenceInDays, eachDayOfInterval, parseISO } from "date-fns";
 import toast from "react-hot-toast";
 import { useRouter } from "next/navigation";
 import { FaGoogle, FaFacebookF, FaLinkedinIn } from "react-icons/fa";
@@ -17,6 +17,12 @@ import { signIn } from "next-auth/react";
 interface MakeReservationProps {
   room: Room;
   settings: Settings[];
+  bookedDatesRange:
+    | {
+        startDate: string;
+        endDate: string;
+      }[]
+    | undefined;
   user:
     | {
         name?: string | null;
@@ -32,20 +38,29 @@ export default function MakeReservation({
   room,
   settings,
   user,
+  bookedDatesRange,
 }: MakeReservationProps) {
   const [range, setRange] = useState<DateRange | undefined>({
     to: undefined,
     from: undefined,
   });
-
-  const { breakfastPrice, maxBookingLength } = settings[0];
-
   const router = useRouter();
 
   const [hasBreakfast, setHasBreakfast] = useState(false);
   const [numGuests, setNumGuests] = useState(2);
   const formRef = useRef<HTMLFormElement>(null);
   const [isPending, startTransition] = useTransition();
+
+  const disabledDates = bookedDatesRange
+    ?.map((booking) => {
+      return eachDayOfInterval({
+        start: parseISO(booking.startDate),
+        end: parseISO(booking.endDate),
+      });
+    })
+    .flat();
+
+  const { breakfastPrice, maxBookingLength } = settings[0];
 
   async function handleBooking(formData: FormData) {
     const toastId = toast.loading("Reserving your suite...");
@@ -76,7 +91,7 @@ export default function MakeReservation({
   const numNights =
     range?.from && range?.to
       ? Math.max(1, differenceInDays(range.to, range.from))
-      : 0;
+      : 1;
 
   const breakfastPricePerNight = breakfastPrice;
 
@@ -156,6 +171,7 @@ export default function MakeReservation({
                 priceSummary={priceSummary}
                 maxBookingLength={maxBookingLength}
                 isLoading={isPending}
+                bookedDates={disabledDates}
               />
             </div>
           </div>
@@ -308,7 +324,7 @@ export default function MakeReservation({
             )}
 
             {!user && (
-              <div className="flex h-full min-h-[400px] flex-col items-center justify-center space-y-8 p-6 text-center md:p-10">
+              <div className="flex h-full min-h-100 flex-col items-center justify-center space-y-8 p-6 text-center md:p-10">
                 <div className="flex h-14 w-14 items-center justify-center rounded-full border border-white/10 bg-white/5 shadow-inner md:h-16 md:w-16">
                   <HiOutlineInformationCircle className="text-2xl text-amber-200/50 md:text-3xl" />
                 </div>
@@ -317,7 +333,7 @@ export default function MakeReservation({
                   <h3 className="font-cormorant text-2xl tracking-wide text-white md:text-3xl">
                     Your Sanctuary Awaits
                   </h3>
-                  <p className="mx-auto max-w-[280px] text-[10px] leading-relaxed tracking-[0.2em] text-slate-400 uppercase md:text-[11px]">
+                  <p className="mx-auto max-w-70 text-[10px] leading-relaxed tracking-[0.2em] text-slate-400 uppercase md:text-[11px]">
                     Please sign in to complete your reservation for this suite.
                   </p>
                 </div>
@@ -330,10 +346,9 @@ export default function MakeReservation({
                     className="group relative w-full overflow-hidden rounded-sm bg-white py-4 text-[11px] font-bold tracking-[0.3em] text-black uppercase transition-all duration-500 hover:bg-indigo-400 hover:text-white active:scale-[0.98] md:py-5 md:text-[12px]"
                   >
                     <span className="relative z-10">Login to Reserve</span>
-                    <div className="absolute inset-0 z-0 bg-gradient-to-r from-transparent via-white/20 to-transparent opacity-0 transition-opacity duration-500 group-hover:opacity-100" />
+                    <div className="absolute inset-0 z-0 bg-linear-to-r from-transparent via-white/20 to-transparent opacity-0 transition-opacity duration-500 group-hover:opacity-100" />
                   </button>
 
-                  {/* Quick Social Logins */}
                   <div className="space-y-5">
                     <div className="flex items-center gap-3">
                       <div className="h-px flex-1 bg-white/5"></div>
