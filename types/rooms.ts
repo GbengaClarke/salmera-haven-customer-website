@@ -18,3 +18,16 @@ export interface Settings {
   breakfastPrice: number;
   revenueTarget: number;
 }
+
+export interface Bookings {
+  id: number;
+  created_at: string;
+  maxBookingLength: number;
+  maxGuests: number;
+  maxActiveBookingsPerGuest: number;
+  breakfastPrice: number;
+  revenueTarget: number;
+}
+
+// status hasBreakfast isPaid observations roomId guestId
+// startDate endDate created_at numNights numGuests roomPrice extraPrice totalPrice id
