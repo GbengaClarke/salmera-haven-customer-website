@@ -30,7 +30,7 @@ export default function BookingSuccess() {
 
         <div className="space-y-1 p-2">
           <Link
-            href="/account"
+            href="/account/reservations"
             className="group flex items-center justify-between rounded-md p-6 transition-all hover:bg-white/3"
           >
             <div className="flex items-center gap-4">
@@ -50,7 +50,7 @@ export default function BookingSuccess() {
           </Link>
 
           <Link
-            href="/account"
+            href="/account/profile"
             className="group flex items-center justify-between rounded-md p-6 transition-all hover:bg-white/3"
           >
             <div className="flex items-center gap-4">

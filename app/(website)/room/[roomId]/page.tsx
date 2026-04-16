@@ -1,4 +1,9 @@
-import { getRoom, getRoomBookedDates, getRooms } from "@/lib/roomsApi";
+import {
+  getBookingCount,
+  getRoom,
+  getRoomBookedDates,
+  getRooms,
+} from "@/lib/roomsApi";
 import { Metadata } from "next";
 import RoomDetails from "../../_components/RoomDetails";
 import RoomFeatures from "../../_components/RoomFeatures";
@@ -31,6 +36,10 @@ async function RoomPage({ params }: { params: Promise<{ roomId: string }> }) {
     getRoomBookedDates(roomId),
   ]);
 
+  const bookingCount = await getBookingCount(session?.user.guestId ?? 0);
+
+  // console.log(bookingCount);
+
   const bookedDatesRange = bookedData.bookedDates;
 
   const { room } = roomData;
@@ -52,6 +61,7 @@ async function RoomPage({ params }: { params: Promise<{ roomId: string }> }) {
         settings={settings}
         bookedDatesRange={bookedDatesRange}
         user={session?.user}
+        bookingCount={bookingCount}
       />
     </div>
   );

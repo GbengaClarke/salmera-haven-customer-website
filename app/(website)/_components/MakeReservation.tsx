@@ -17,6 +17,7 @@ import { signIn } from "next-auth/react";
 interface MakeReservationProps {
   room: Room;
   settings: Settings[];
+  bookingCount: number;
   bookedDatesRange:
     | {
         startDate: string;
@@ -39,6 +40,7 @@ export default function MakeReservation({
   settings,
   user,
   bookedDatesRange,
+  bookingCount,
 }: MakeReservationProps) {
   const [range, setRange] = useState<DateRange | undefined>({
     to: undefined,
@@ -63,6 +65,14 @@ export default function MakeReservation({
   const { breakfastPrice, maxBookingLength } = settings[0];
 
   async function handleBooking(formData: FormData) {
+    if (bookingCount >= 4) {
+      toast.error(
+        "In this demo version, no more than 4 reservations are allowed. To add more, please delete your existing reservations.",
+        { duration: 6000 },
+      );
+      return;
+    }
+
     const toastId = toast.loading("Reserving your suite...");
     startTransition(async () => {
       const result = await createBooking(formData);
@@ -304,7 +314,7 @@ export default function MakeReservation({
                   </div>
                 </div>
                 <div className="mt-auto pt-8">
-                  <FormButton
+                  {/* <FormButton
                     loadingText="Reserving Suite..."
                     disabled={!range?.from}
                     staticText={
@@ -318,6 +328,25 @@ export default function MakeReservation({
           ? "bg-white text-black hover:bg-indigo-400 active:scale-[0.98]"
           : "bg-slate-800 text-slate-500 cursor-not-allowed"
       }`}
+                  /> */}
+
+                  <FormButton
+                    loadingText="Reserving Suite..."
+                    // Disable if no date is selected OR if they hit the limit
+                    disabled={!range?.from}
+                    staticText={
+                      bookingCount >= 4
+                        ? "Booking Limit Reached (Max 4)"
+                        : range?.from
+                          ? `Reserve Suite: ${formatCurrency(priceSummary.finalTotal)}`
+                          : "Select date to reserve suite"
+                    }
+                    buttonStyle={`w-full py-5 text-[12px] font-bold uppercase tracking-[0.3em] transition-all duration-500 shadow-xl 
+    ${
+      range?.from && bookingCount < 4
+        ? "bg-white text-black hover:bg-indigo-400 active:scale-[0.98]"
+        : "bg-slate-800 text-slate-500 cursor-not-allowed opacity-50"
+    }`}
                   />
                 </div>
               </form>

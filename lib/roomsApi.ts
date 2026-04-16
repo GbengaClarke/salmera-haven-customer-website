@@ -53,3 +53,67 @@ export async function getRoomBookedDates(id: string) {
     bookedDates: data,
   };
 }
+
+export async function getAllBookingsByEmail(email: string) {
+  if (!email) return null;
+
+  const { data, error } = await supabase
+    .from("guests")
+    .select(
+      `
+      id,
+      bookings (
+        *,
+        rooms (
+          name
+        )
+      )
+    `,
+    )
+    .eq("email", email.toLowerCase())
+    .order("created_at", { foreignTable: "bookings", ascending: false })
+    .single();
+
+  if (error) {
+    console.error("Error fetching guest bookings:", error);
+    return {
+      success: false,
+      message: "Error fetching guest bookings:",
+      data: null,
+    };
+  }
+
+  // console.log(data);
+
+  // return "";
+  return {
+    success: true,
+    message: "bookings retrieved",
+    bookings: data.bookings,
+  };
+}
+
+export async function getBookingCount(id: number) {
+  if (!id) return 0;
+
+  const { count, error } = await supabase
+    .from("bookings")
+    .select("*", { count: "exact", head: true })
+    .eq("guestId", id);
+
+  if (error) {
+    console.error("Error fetching booking count:", error);
+    return 0;
+  }
+
+  return count ?? 0;
+}
+
+export async function deleteBooking(id: number | string) {
+  const { error } = await supabase.from("bookings").delete().eq("id", id);
+
+  if (error) {
+    console.error("Supabase error:", error.message);
+    throw error;
+  }
+}

@@ -3,7 +3,7 @@ import Google from "next-auth/providers/google";
 import Facebook from "next-auth/providers/facebook";
 import LinkedIn from "next-auth/providers/linkedin";
 import CredentialsProvider from "next-auth/providers/credentials";
-import { createUser, getGuest, getUser } from "./dataApi";
+import { createUser, getUser } from "./dataApi";
 import { supabase } from "./supabase";
 
 export const { handlers, signIn, signOut, auth } = NextAuth({
@@ -71,7 +71,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
       try {
         if (!session.user?.email) return session;
 
-        const guest = await getGuest(session.user.email);
+        const guest = await getUser(session.user.email);
 
         if (guest) {
           session.user.guestId = guest.id;

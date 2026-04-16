@@ -1,5 +1,3 @@
-"use client";
-
 import Link from "next/link";
 import { HiOutlineArrowRight } from "react-icons/hi2";
 
@@ -18,7 +16,7 @@ export default function AccountPage() {
             />
           </div>
         </div>
-        <h3 className="mb-2 text-2xl font-bold">Your Bookings</h3>
+        <h3 className="mb-2 text-2xl font-bold">Your Reservations</h3>
         <p className="text-sm leading-relaxed text-slate-400">
           Review your past stays and manage upcoming check-ins at our premium
           suites.

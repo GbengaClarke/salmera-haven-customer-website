@@ -1,6 +1,6 @@
 import { FaFacebookF, FaInstagram, FaLinkedinIn } from "react-icons/fa";
 import { FaXTwitter } from "react-icons/fa6";
-import CompanyLogo from "./CompanyLogo";
+// import CompanyLogo from "./CompanyLogo";
 import Image from "next/image";
 
 const FOOTER_LINKS = {
@@ -21,12 +21,10 @@ const FOOTER_LINKS = {
 export default function Footer() {
   const today = new Date().getFullYear();
 
-  console.log(today);
   return (
     <footer className="mt-6 border-t border-white/5 bg-indigo-950 text-slate-300">
       <div className="mx-auto max-w-7xl px-6 py-16 md:py-24">
         <div className="grid grid-cols-1 gap-12 sm:grid-cols-2 lg:grid-cols-4 lg:gap-8">
-          {/* Column 1: Brand & Bio */}
           <div className="space-y-6">
             <div className="brdx flex items-center gap-1 md:items-start">
               <div className="relative h-12 w-15 overflow-hidden shadow-2xl md:-mt-3 lg:hidden">
@@ -64,7 +62,6 @@ export default function Footer() {
             </div>
           </div>
 
-          {/* Column 2: Navigation */}
           <div className="space-y-6">
             <h3 className="text-sm font-semibold tracking-[0.2em] text-white uppercase">
               Discovery
@@ -83,7 +80,6 @@ export default function Footer() {
             </ul>
           </div>
 
-          {/* Column 3: Services */}
           <div className="space-y-6">
             <h3 className="text-sm font-semibold tracking-[0.2em] text-white uppercase">
               Experience

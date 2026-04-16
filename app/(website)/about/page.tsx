@@ -18,6 +18,7 @@ export default function AboutUs() {
           src="/auth-pic.jpg"
           alt="Salmera Haven Modern Luxury"
           fill
+          sizes="(max-width: 640px) 100vw, (max-width: 1024px) 33vw, 220px"
           priority
           className="object-cover object-center"
         />
@@ -70,6 +71,7 @@ export default function AboutUs() {
                   src="/gridpic1.webp"
                   alt="Suite Interior 1"
                   fill
+                  sizes="(max-width: 640px) 100vw, (max-width: 1024px) 33vw, 220px"
                   className="object-cover"
                 />
               </div>
@@ -78,6 +80,7 @@ export default function AboutUs() {
                   src="/gridpic2.webp"
                   alt="Suite Interior 2"
                   fill
+                  sizes="(max-width: 640px) 100vw, (max-width: 1024px) 33vw, 220px"
                   className="object-cover"
                 />
               </div>
@@ -88,6 +91,7 @@ export default function AboutUs() {
                   src="/gridpic3.webp"
                   alt="Suite View 1"
                   fill
+                  sizes="(max-width: 640px) 100vw, (max-width: 1024px) 33vw, 220px"
                   className="object-cover"
                 />
               </div>
@@ -96,6 +100,7 @@ export default function AboutUs() {
                   src="/gridpic4.webp"
                   alt="Suite View 2"
                   fill
+                  sizes="(max-width: 640px) 100vw, (max-width: 1024px) 33vw, 220px"
                   className="object-cover"
                 />
               </div>
@@ -153,6 +158,7 @@ export default function AboutUs() {
               src="/bottomAboutUsPic.webp"
               alt="Premium Suite View"
               fill
+              sizes="(max-width: 640px) 100vw, (max-width: 1024px) 33vw, 220px"
               className="object-cover transition-transform duration-700"
             />
           </div>
