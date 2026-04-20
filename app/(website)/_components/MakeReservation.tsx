@@ -16,14 +16,9 @@ import { signIn } from "next-auth/react";
 
 interface MakeReservationProps {
   room: Room;
-  settings: Settings[];
+  settings: Settings[] | null | undefined;
   bookingCount: number;
-  bookedDatesRange:
-    | {
-        startDate: string;
-        endDate: string;
-      }[]
-    | undefined;
+  bookedDatesRange: { startDate: string; endDate: string }[] | undefined;
   user:
     | {
         name?: string | null;
@@ -49,9 +44,14 @@ export default function MakeReservation({
   const router = useRouter();
 
   const [hasBreakfast, setHasBreakfast] = useState(false);
-  const [numGuests, setNumGuests] = useState(2);
+  const [numGuests, setNumGuests] = useState(1);
   const formRef = useRef<HTMLFormElement>(null);
   const [isPending, startTransition] = useTransition();
+
+  const hasSettings = settings && settings.length > 0;
+  const { breakfastPrice = 0, maxBookingLength = 90 } = hasSettings
+    ? settings[0]
+    : { breakfastPrice: 0, maxBookingLength: 0 };
 
   const disabledDates = bookedDatesRange
     ?.map((booking) => {
@@ -62,59 +62,18 @@ export default function MakeReservation({
     })
     .flat();
 
-  const { breakfastPrice, maxBookingLength } = settings[0];
-
-  async function handleBooking(formData: FormData) {
-    if (bookingCount >= 4) {
-      toast.error(
-        "In this demo version, no more than 4 reservations are allowed. To add more, please delete your existing reservations.",
-        { duration: 6000 },
-      );
-      return;
-    }
-
-    const toastId = toast.loading("Reserving your suite...");
-    startTransition(async () => {
-      const result = await createBooking(formData);
-
-      if (!result.success) {
-        toast.error(result.message, { id: toastId });
-        return;
-      }
-
-      // Reset values
-      setRange({ to: undefined, from: undefined });
-      setHasBreakfast(false);
-      setNumGuests(2);
-      formRef.current?.reset();
-
-      toast.success(result.message, {
-        duration: 5000,
-      });
-
-      toast.success(result.message, { id: toastId });
-      router.push("/room/confirmedBooking");
-    });
-  }
-
   const { maxCapacity, name, discount, regularPrice, id } = room;
+
   const numNights =
     range?.from && range?.to
       ? Math.max(1, differenceInDays(range.to, range.from))
       : 1;
 
-  const breakfastPricePerNight = breakfastPrice;
-
   const priceSummary = useMemo(() => {
     const roomPricePerNight = regularPrice - discount;
     const roomsTotalPrice = numNights * roomPricePerNight;
-
     const extraPrice = hasBreakfast
-      ? numNights > 0
-        ? breakfastPricePerNight * numNights * numGuests
-        : range?.from
-          ? breakfastPricePerNight * numGuests
-          : 0
+      ? breakfastPrice * numNights * numGuests
       : 0;
 
     const finalTotal =
@@ -129,13 +88,53 @@ export default function MakeReservation({
     regularPrice,
     numGuests,
     discount,
-    range?.from,
-    range?.to,
-    breakfastPricePerNight,
+    range,
+    breakfastPrice,
   ]);
 
   const startDate = adjustDate(range?.from);
   const endDate = adjustDate(range?.to);
+
+  async function handleBooking(formData: FormData) {
+    if (bookingCount >= 3) {
+      toast.error(
+        "In this demo version, no more than 3 reservations are allowed. To add more, please delete your existing reservations.",
+        { duration: 5000 },
+      );
+      return;
+    }
+
+    const toastId = toast.loading("Reserving your suite...");
+    startTransition(async () => {
+      const result = await createBooking(formData);
+
+      if (!result.success) {
+        toast.error(result.message, { id: toastId, duration: 6000 });
+        return;
+      }
+
+      toast.success(result.message, { id: toastId, duration: 6000 });
+      setRange({ to: undefined, from: undefined });
+      formRef.current?.reset();
+      router.push("/room/confirmedBooking");
+    });
+  }
+
+  if (!hasSettings) {
+    return (
+      <div className="mt-12 rounded-sm border border-red-500/10 bg-red-500/5 p-16 text-center">
+        <HiOutlineInformationCircle
+          size={40}
+          className="mx-auto mb-4 text-red-500/40"
+        />
+        <h3 className="font-cormorant text-3xl text-white">System Notice</h3>
+        <p className="mx-auto mt-2 max-w-md text-[10px] tracking-widest text-slate-400 uppercase">
+          We are currently updating our pricing systems. Online booking is
+          temporarily unavailable, but our concierge is ready to assist you.
+        </p>
+      </div>
+    );
+  }
 
   return (
     <section className="mt-8 mb-24 border-t border-white/5 pt-8">
@@ -151,27 +150,15 @@ export default function MakeReservation({
             </p>
           </div>
         </div>
-
-        <div className="hidden text-right md:block">
-          <p className="mb-1 text-[10px] tracking-widest text-slate-500 uppercase">
-            Status
-          </p>
-          <p className="flex items-center gap-2 text-xs font-bold tracking-widest text-emerald-500 uppercase">
-            <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-emerald-500"></span>
-            Available for Booking
-          </p>
-        </div>
       </div>
 
       <div className="overflow-hidden rounded-lg border border-white/5 bg-[#0a0f1d] shadow-2xl">
         <div className="grid grid-cols-1 lg:grid-cols-[1fr_350px]">
           <div className="bg-white/2 p-8 lg:p-12">
-            <div className="flex h-full min-h-112.5 w-full flex-col items-center justify-center border-white/10">
+            <div className="flex flex-col items-center justify-center">
               <span className="mb-4 text-[11px] tracking-[0.4em] text-slate-400 uppercase">
                 Select Dates
               </span>
-              <div className="h-px w-12 bg-white/10"></div>
-
               <DateSelector
                 room={room}
                 range={range}
@@ -187,60 +174,20 @@ export default function MakeReservation({
           </div>
 
           <div className="border-l border-white/5 bg-white/5 p-8 lg:p-10">
-            {user && (
+            {user ? (
               <form
                 action={handleBooking}
                 ref={formRef}
                 className="flex h-full flex-col space-y-8"
               >
+                <input type="hidden" name="roomId" value={id} />
+                <input type="hidden" name="startDate" value={startDate || ""} />
+                <input type="hidden" name="endDate" value={endDate || ""} />
+                <input type="hidden" name="numNights" value={numNights} />
                 <input
-                  name={"roomId"}
-                  readOnly
-                  value={id || ""}
-                  type="text"
-                  className="hidden"
-                />
-                <input
-                  name={"startDate"}
-                  readOnly
-                  value={startDate || ""}
-                  type="text"
-                  className="hidden"
-                />
-                <input
-                  name={"endDate"}
-                  readOnly
-                  value={endDate || ""}
-                  type="text"
-                  className="hidden"
-                />
-                <input
-                  name={"numNights"}
-                  readOnly
-                  value={numNights || ""}
-                  type="text"
-                  className="hidden"
-                />
-                <input
-                  name={"totalPrice"}
-                  readOnly
-                  value={priceSummary.finalTotal || ""}
-                  type="text"
-                  className="hidden"
-                />
-                <input
-                  name={"extraPrice"}
-                  readOnly
-                  value={priceSummary.extraPrice || ""}
-                  type="text"
-                  className="hidden"
-                />
-                <input
-                  name={"roomPrice"}
-                  readOnly
-                  value={priceSummary.roomsTotalPrice || ""}
-                  type="text"
-                  className="hidden"
+                  type="hidden"
+                  name="totalPrice"
+                  value={priceSummary.finalTotal}
                 />
 
                 <div className="space-y-6">
@@ -248,41 +195,33 @@ export default function MakeReservation({
                     <label className="text-[10px] font-bold tracking-[0.2em] text-slate-400 uppercase">
                       Guest Count
                     </label>
-
                     <select
                       name="numGuests"
                       value={numGuests}
-                      onChange={(e) => setNumGuests(Number(e.target.value))}
-                      className="w-full cursor-pointer rounded-sm border border-white/10 bg-black/40 p-4 text-sm text-white transition-all outline-none hover:border-indigo-500/30 focus:border-indigo-500"
                       required
+                      onChange={(e) => setNumGuests(Number(e.target.value))}
+                      className="w-full cursor-pointer rounded-sm border border-white/10 bg-black/40 p-4 text-sm text-white outline-none hover:border-indigo-500/30"
                     >
-                      <option value="">Choose number of guests</option>
+                      <option value={""}>Number of Guests</option>
                       {[...Array(maxCapacity)].map((_, i) => (
                         <option key={i + 1} value={i + 1}>
-                          {i + 1} {i + 1 === 1 ? "Guest" : "Guests"}
+                          {i + 1} {i === 0 ? "Guest" : "Guests"}
                         </option>
                       ))}
                     </select>
                   </div>
 
-                  {/* Breakfast Toggle */}
-                  <label
-                    htmlFor="breakfast"
-                    className="group flex cursor-pointer items-center justify-between rounded-sm border border-white/5 bg-black/20 p-4 transition-all hover:border-indigo-500/30 has-checked:border-white/10 has-checked:bg-black/40 has-checked:hover:border-indigo-500/30"
-                  >
+                  {/* <label className="group flex cursor-pointer items-center justify-between rounded-sm border border-white/5 bg-black/20 p-4 transition-all hover:border-indigo-500/30">
                     <div className="flex flex-col">
-                      <label
-                        htmlFor="breakfast"
-                        className={`cursor-pointer text-[10px] font-bold tracking-[0.2em] text-white uppercase`}
-                      >
+                      <span className="text-[10px] font-bold tracking-[0.2em] text-white uppercase">
                         Tasty Breakfast
-                      </label>
+                      </span>
                       <p className="mt-1 text-[10px] tracking-widest text-slate-500 uppercase">
-                        ${breakfastPricePerNight} per night{" "}
+                        ${breakfastPrice} per night
                         {range?.from && (
-                          <span className="text-slate-300x text-emerald-200">
-                            (+$
-                            {breakfastPricePerNight * numNights * numGuests})
+                          <span className="text-emerald-200">
+                            {" "}
+                            (+${breakfastPrice * numNights * numGuests})
                           </span>
                         )}
                       </p>
@@ -290,11 +229,39 @@ export default function MakeReservation({
                     <div className="relative flex items-center">
                       <input
                         type="checkbox"
-                        id="breakfast"
                         name="hasBreakfast"
                         checked={hasBreakfast}
                         onChange={() => setHasBreakfast(!hasBreakfast)}
-                        className="peer h-6 w-6 cursor-pointer appearance-none rounded-sm border border-white/20 bg-[#0a0f1d] transition-all checked:border-indigo-600 checked:bg-indigo-600"
+                        className="peer h-6 w-6 appearance-none rounded-sm border border-white/20 bg-[#0a0f1d] checked:bg-indigo-600"
+                      />
+                      <HiCheck className="pointer-events-none absolute left-1 hidden h-4 w-4 text-white peer-checked:block" />
+                    </div>
+                  </label> */}
+
+                  <label className="group flex cursor-pointer items-center justify-between rounded-sm border border-white/5 bg-black/20 p-4 transition-all hover:border-indigo-500/30">
+                    <div className="flex flex-col">
+                      <span className="text-[10px] font-bold tracking-[0.2em] text-white uppercase">
+                        Tasty Breakfast
+                      </span>
+                      {/* Added h-8 or leading-loose to ensure the container height remains constant */}
+                      <p className="mt-1 min-h-[20px] text-[10px] leading-normal tracking-widest text-slate-500 uppercase">
+                        ${breakfastPrice} per night
+                        {range?.from && (
+                          <span className="block text-emerald-200 md:inline">
+                            {" "}
+                            (+${breakfastPrice * numNights * numGuests})
+                          </span>
+                        )}
+                      </p>
+                    </div>
+
+                    <div className="relative flex items-center">
+                      <input
+                        type="checkbox"
+                        name="hasBreakfast"
+                        checked={hasBreakfast}
+                        onChange={() => setHasBreakfast(!hasBreakfast)}
+                        className="peer h-6 w-6 appearance-none rounded-sm border border-white/20 bg-[#0a0f1d] transition-colors checked:bg-indigo-600"
                       />
                       <HiCheck className="pointer-events-none absolute left-1 hidden h-4 w-4 text-white peer-checked:block" />
                     </div>
@@ -302,80 +269,53 @@ export default function MakeReservation({
 
                   <div className="space-y-3">
                     <label className="text-[10px] font-bold tracking-[0.2em] text-slate-400 uppercase">
-                      Additional Message
+                      Special Requirements
                     </label>
                     <textarea
-                      placeholder="Anything we should prepare for your arrival?"
-                      rows={6}
-                      defaultValue={"sike mf"}
                       name="observations"
-                      className="w-full resize-none rounded-sm border border-white/10 bg-black/40 px-4 py-4 text-white transition-all outline-none placeholder:text-slate-700 hover:border-indigo-500/30 focus:border-indigo-500"
+                      rows={4}
+                      placeholder="Any specific requests?"
+                      className="w-full resize-none rounded-sm border border-white/10 bg-black/40 px-4 py-4 text-white outline-none placeholder:text-slate-700 hover:border-indigo-500/30"
                     />
                   </div>
                 </div>
-                <div className="mt-auto pt-8">
-                  {/* <FormButton
-                    loadingText="Reserving Suite..."
-                    disabled={!range?.from}
-                    staticText={
-                      range?.from
-                        ? `Reserve Suite: ${formatCurrency(priceSummary.finalTotal)}`
-                        : "Select date to reserve suite"
-                    }
-                    buttonStyle={`w-full py-5 text-[12px] font-bold uppercase tracking-[0.3em] transition-all duration-500 shadow-xl 
-      ${
-        range?.from
-          ? "bg-white text-black hover:bg-indigo-400 active:scale-[0.98]"
-          : "bg-slate-800 text-slate-500 cursor-not-allowed"
-      }`}
-                  /> */}
 
+                <div className="mt-auto pt-8">
                   <FormButton
-                    loadingText="Reserving Suite..."
-                    // Disable if no date is selected OR if they hit the limit
+                    loadingText="Processing..."
                     disabled={!range?.from}
                     staticText={
-                      bookingCount >= 4
-                        ? "Booking Limit Reached (Max 4)"
+                      bookingCount >= 3
+                        ? "Booking Limit Reached (Max 3)"
                         : range?.from
-                          ? `Reserve Suite: ${formatCurrency(priceSummary.finalTotal)}`
-                          : "Select date to reserve suite"
+                          ? `Reserve: ${formatCurrency(priceSummary.finalTotal)}`
+                          : "Select Dates to Continue"
                     }
-                    buttonStyle={`w-full py-5 text-[12px] font-bold uppercase tracking-[0.3em] transition-all duration-500 shadow-xl 
-    ${
-      range?.from && bookingCount < 4
-        ? "bg-white text-black hover:bg-indigo-400 active:scale-[0.98]"
-        : "bg-slate-800 text-slate-500 cursor-not-allowed opacity-50"
-    }`}
+                    buttonStyle={`w-full py-5 text-[12px] font-bold uppercase tracking-[0.3em] transition-all 
+                      ${range?.from && bookingCount < 3 ? "bg-white text-black hover:bg-indigo-400" : "bg-slate-800 text-slate-500 opacity-50 cursor-not-allowed"}`}
                   />
                 </div>
               </form>
-            )}
-
-            {!user && (
-              <div className="flex h-full min-h-100 flex-col items-center justify-center space-y-8 p-6 text-center md:p-10">
-                <div className="flex h-14 w-14 items-center justify-center rounded-full border border-white/10 bg-white/5 shadow-inner md:h-16 md:w-16">
-                  <HiOutlineInformationCircle className="text-2xl text-amber-200/50 md:text-3xl" />
+            ) : (
+              <div className="flex h-full flex-col items-center justify-center space-y-8 p-6 text-center">
+                <div className="flex h-16 w-16 items-center justify-center rounded-full border border-white/10 bg-white/5">
+                  <HiOutlineInformationCircle className="text-3xl text-amber-200/50" />
                 </div>
-
-                <div className="space-y-3">
-                  <h3 className="font-cormorant text-2xl tracking-wide text-white md:text-3xl">
+                <div>
+                  <h3 className="font-cormorant text-3xl text-white">
                     Your Sanctuary Awaits
                   </h3>
-                  <p className="mx-auto max-w-70 text-[10px] leading-relaxed tracking-[0.2em] text-slate-400 uppercase md:text-[11px]">
-                    Please sign in to complete your reservation for this suite.
+                  <p className="mt-2 text-[10px] tracking-[0.2em] text-slate-400 uppercase">
+                    Sign in to complete your reservation.
                   </p>
                 </div>
-
-                <div className="h-px w-10 bg-white/10"></div>
 
                 <div className="w-full max-w-[320px] space-y-8">
                   <button
                     onClick={() => router.push("/login")}
-                    className="group relative w-full overflow-hidden rounded-sm bg-white py-4 text-[11px] font-bold tracking-[0.3em] text-black uppercase transition-all duration-500 hover:bg-indigo-400 hover:text-white active:scale-[0.98] md:py-5 md:text-[12px]"
+                    className="w-full bg-white py-5 text-[11px] font-bold tracking-[0.3em] text-black uppercase transition-all hover:bg-indigo-400 hover:text-white"
                   >
-                    <span className="relative z-10">Login to Reserve</span>
-                    <div className="absolute inset-0 z-0 bg-linear-to-r from-transparent via-white/20 to-transparent opacity-0 transition-opacity duration-500 group-hover:opacity-100" />
+                    Login to Reserve
                   </button>
 
                   <div className="space-y-5">
@@ -415,19 +355,15 @@ export default function MakeReservation({
                               callbackUrl: window.location.href,
                             })
                           }
-                          className={`flex h-12 w-12 items-center justify-center rounded-full border border-white/10 bg-white/5 text-slate-400 transition-all duration-300 active:scale-90 md:h-11 md:w-11 ${social.color} hover:bg-white/5`}
-                          title={`Sign in with ${social.provider}`}
+                          className={`flex h-11 w-11 items-center justify-center rounded-full border border-white/10 bg-white/5 text-slate-400 transition-all duration-300 ${social.color} hover:bg-white/5`}
                         >
-                          <span className="text-lg md:text-base">
-                            {social.icon}
-                          </span>
+                          <span className="text-base">{social.icon}</span>
                         </button>
                       ))}
                     </div>
                   </div>
                 </div>
-
-                <p className="text-[8px] font-medium tracking-[0.2em] text-slate-600 uppercase md:text-[9px]">
+                <p className="text-[9px] font-medium tracking-[0.2em] text-slate-600 uppercase">
                   Secure Authenticated Booking
                 </p>
               </div>

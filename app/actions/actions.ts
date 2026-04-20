@@ -4,8 +4,6 @@ import { auth } from "@/lib/auth";
 import { deleteBooking as deleteBookingApi } from "@/lib/roomsApi";
 import { supabase } from "@/lib/supabase";
 import { revalidatePath } from "next/cache";
-import { startTransition } from "react";
-import toast from "react-hot-toast";
 
 export async function createBooking(formData: FormData) {
   const session = await auth();
@@ -53,16 +51,11 @@ export async function createBooking(formData: FormData) {
 export async function deleteBooking(bookingId: number | string) {
   const session = await auth();
 
-  // 1. Authentication Guard
   if (!session) throw new Error("You must be logged in to perform this action");
 
   try {
-    // 2. Execute Deletion
     await deleteBookingApi(bookingId);
 
-    // 3. Clear Cache
-    // This forces Next.js to fetch a fresh list of bookings,
-    // which automatically updates your bookingCount in the UI!
     revalidatePath("/room/reservations");
 
     return { success: true, message: "Reservation deleted successfully" };
@@ -72,4 +65,32 @@ export async function deleteBooking(bookingId: number | string) {
       message: "Could not delete reservation. Please try again.",
     };
   }
+}
+
+export async function updateProfile(formData: FormData) {
+  // console.log(formData);
+  // return { success: true, message: "Profile successfully updated" };
+
+  const session = await auth();
+  if (!session) throw new Error("You must be logged in");
+  const nationalID = formData.get("nationalID") as string;
+  const country = formData.get("country") as string;
+
+  const [nationality, countryFlag] = country.split("%");
+
+  if (!/^[a-zA-Z0-9]{6,12}$/.test(nationalID)) {
+    return {
+      success: false,
+      message: "Please provide a valid National ID within 6 - 12 characters",
+    };
+  }
+  const { error } = await supabase
+    .from("guests")
+    .update({ nationalID, nationality, countryFlag })
+    .eq("id", session.user.guestId);
+  if (error) {
+    return { success: false, message: "Could not update profile" };
+  }
+  revalidatePath("/account/profile");
+  return { success: true, message: "Profile successfully updated" };
 }

@@ -1,5 +1,6 @@
 import { notFound } from "next/navigation";
 import { supabase } from "./supabase";
+import Error from "@/app/error";
 
 export async function getRooms() {
   const { data, error } = await supabase.from("rooms").select("*");
@@ -83,9 +84,6 @@ export async function getAllBookingsByEmail(email: string) {
     };
   }
 
-  // console.log(data);
-
-  // return "";
   return {
     success: true,
     message: "bookings retrieved",
@@ -115,5 +113,23 @@ export async function deleteBooking(id: number | string) {
   if (error) {
     console.error("Supabase error:", error.message);
     throw error;
+  }
+}
+
+export async function getCountries() {
+  try {
+    const res = await fetch(
+      "https://restcountries.com/v2/all?fields=name,flag",
+      { next: { revalidate: 3600 } },
+    );
+
+    if (!res.ok) return [];
+
+    const data = await res.json();
+
+    return data;
+  } catch (error) {
+    console.error("could not load countries:", error);
+    return [];
   }
 }

@@ -11,9 +11,11 @@ export default async function FeaturedRooms() {
         <div className="mb-12 md:mb-16">
           <h2 className="font-cormorant text-4xl tracking-tight text-white md:text-6xl">
             Featured Rooms{" "}
-            <span className="text-[1.3rem] text-slate-300">
-              ({rooms?.length})
-            </span>
+            {rooms?.length && (
+              <span className="text-[1.3rem] text-slate-300">
+                ({rooms?.length})
+              </span>
+            )}
           </h2>
           <div className="mt-4 h-px w-20 bg-indigo-400 opacity-50" />
         </div>

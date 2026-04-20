@@ -38,19 +38,12 @@ async function RoomPage({ params }: { params: Promise<{ roomId: string }> }) {
 
   const bookingCount = await getBookingCount(session?.user.guestId ?? 0);
 
-  // console.log(bookingCount);
-
   const bookedDatesRange = bookedData.bookedDates;
 
   const { room } = roomData;
   const { settings, success } = settingsData;
 
-  //edit!!! use toast?
-  if (!success || !settings) {
-    return (
-      <div>Error loading reservation settings. Please try again later.</div>
-    );
-  }
+  if (!room) return <div>Room not found.</div>;
 
   return (
     <div>
