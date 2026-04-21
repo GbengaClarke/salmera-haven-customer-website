@@ -247,7 +247,7 @@ export default function MakeReservation({
                       <p className="mt-1 min-h-[20px] text-[10px] leading-normal tracking-widest text-slate-500 uppercase">
                         ${breakfastPrice} per night
                         {range?.from && (
-                          <span className="block text-emerald-200 md:inline">
+                          <span className="text-emerald-200 md:inline">
                             {" "}
                             (+${breakfastPrice * numNights * numGuests})
                           </span>

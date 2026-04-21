@@ -67,6 +67,7 @@ export async function deleteBooking(bookingId: number | string) {
   }
 }
 
+//optimize???
 export async function updateProfile(formData: FormData) {
   // console.log(formData);
   // return { success: true, message: "Profile successfully updated" };
@@ -92,5 +93,6 @@ export async function updateProfile(formData: FormData) {
     return { success: false, message: "Could not update profile" };
   }
   revalidatePath("/account/profile");
+
   return { success: true, message: "Profile successfully updated" };
 }

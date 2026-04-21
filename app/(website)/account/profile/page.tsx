@@ -18,7 +18,11 @@ export default async function ProfilePage() {
         </div>
       )}
 
-      <UpdateProfileForm guestData={data} countries={countries} />
+      <UpdateProfileForm
+        guestData={data}
+        countries={countries}
+        key={`${data.nationalID}-${data.nationality}`}
+      />
     </div>
   );
 }

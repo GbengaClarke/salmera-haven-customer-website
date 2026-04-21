@@ -1,7 +1,7 @@
 "use client";
 
 import { updateProfile } from "@/app/actions/actions";
-import { useState, useTransition } from "react";
+import { useEffect, useState, useTransition } from "react";
 import toast from "react-hot-toast";
 import FormButton from "./FormButton";
 import { HiOutlineGlobeAlt, HiOutlineInformationCircle } from "react-icons/hi2";
@@ -44,9 +44,11 @@ export default function UpdateProfileForm({
       : "",
   );
 
-  const [currentCountry, currentFlag] = selection.split("%");
+  const [nationalIdValue, setNationalIdValue] = useState(
+    guestData?.nationalID || "",
+  );
 
-  console.log(selection);
+  const [currentCountry, currentFlag] = selection.split("%");
 
   if (!guestData) {
     return (
@@ -120,7 +122,7 @@ export default function UpdateProfileForm({
     );
   }
 
-  const { fullName, email, nationalID } = guestData;
+  const { fullName, email } = guestData;
 
   async function handleSubmit(formData: FormData) {
     const toastId = toast.loading("Updating details");
@@ -172,7 +174,9 @@ export default function UpdateProfileForm({
           <input
             name="nationalID"
             type="text"
-            defaultValue={nationalID}
+            // defaultValue={nationalID}
+            value={nationalIdValue}
+            onChange={(e) => setNationalIdValue(e.target.value)}
             className="w-full rounded-sm border border-white/10 bg-slate-950 px-5 py-4 text-sm text-[16px] transition-all focus:border-emerald-500/50 focus:outline-none"
           />
         </div>
@@ -200,7 +204,7 @@ export default function UpdateProfileForm({
           <select
             name="country"
             value={selection}
-            // defaultValue={`${currentCountry}%${currentFlag}`}
+            // defaultValue={currentCountry}
             onChange={(e) => setSelection(e.target.value)}
             className="w-full rounded-sm border border-white/10 bg-slate-950 px-5 py-4 text-sm transition-all focus:border-emerald-500/50 focus:outline-none"
           >

@@ -51,17 +51,14 @@ function SignupForm({ step, setStep }: SignupFormProps) {
     step === 1 ? !isFormValid : step === 2 ? !validStep2 : !allChecksMet;
 
   async function handleNext() {
-    // if (step >= 4) return;
     setIsLoading(true);
 
-    //toast ID
     const loadingName = step === 1 ? "Checking mail..." : "Verifying details";
     const toastId = toast.loading(loadingName);
 
     if (step === 1) {
       const genOtp = otpGenerator();
 
-      //check if user already has an account
       const profile = await getExistingProfile(email);
 
       if (profile.itExists) {
@@ -71,7 +68,6 @@ function SignupForm({ step, setStep }: SignupFormProps) {
           duration: 6000,
         });
 
-        //route to login page
         router.push("/login");
 
         setIsLoading(false);
@@ -79,7 +75,6 @@ function SignupForm({ step, setStep }: SignupFormProps) {
         return;
       }
 
-      //upload otp (hashed code?) & send email
       if (!profile.itExists) {
         const res = await sendEmailOTP(genOtp, email);
 
@@ -119,11 +114,7 @@ function SignupForm({ step, setStep }: SignupFormProps) {
       if (res.success) {
         toast.success(res.message, { id: toastId, duration: 4000 });
 
-        // Redirect the user to the login page after 2s delay to read toast
-        // setTimeout(() => {
-        // window.location.href = "/login";
         router.push("/login");
-        // }, 1500);
       } else {
         toast.error(res.message, { id: toastId });
       }
@@ -140,7 +131,6 @@ function SignupForm({ step, setStep }: SignupFormProps) {
 
       {step === 1 && (
         <>
-          {/* Name Field */}
           <div className="group flex flex-col gap-1">
             <label className="text-sm font-medium text-stone-700 transition-colors group-has-focus:text-blue-500">
               Name
@@ -159,7 +149,6 @@ function SignupForm({ step, setStep }: SignupFormProps) {
             </div>
           </div>
 
-          {/* Email Field */}
           <div className="group flex flex-col gap-1">
             <label className="text-sm font-medium text-stone-700 transition-colors group-has-focus:text-blue-500">
               Email
@@ -218,7 +207,6 @@ function SignupForm({ step, setStep }: SignupFormProps) {
       {/* STEP 3: input password */}
       {step >= 3 && (
         <div className="space-y-4">
-          {/* {first password} */}
           <div className="group flex flex-col gap-1">
             <label className="text-sm font-medium text-stone-700 transition-colors group-has-focus:text-blue-500">
               Password
@@ -302,7 +290,6 @@ function SignupForm({ step, setStep }: SignupFormProps) {
 
       <button
         onClick={handleNext}
-        // type="button"
         disabled={disableButton || isLoading}
         className={`w-full rounded-lg py-3 font-semibold text-white transition-all ${
           !disableButton && !isLoading
