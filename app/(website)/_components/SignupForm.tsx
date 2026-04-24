@@ -191,7 +191,7 @@ function SignupForm({ step, setStep }: SignupFormProps) {
               value={userOtp}
               onChange={(e) => setuserOtp(e.target.value)}
               placeholder="000000"
-              className="w-full rounded-lg border border-stone-300 py-4 text-center font-mono text-2xl tracking-[1em] text-stone-500 outline-none focus:border-blue-500"
+              className="w-full rounded-lg border border-stone-300 py-4 text-center font-mono text-2xl tracking-[1em] text-stone-700 outline-none focus:border-blue-500"
             />
           </div>
           <button
