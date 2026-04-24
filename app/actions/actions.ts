@@ -53,8 +53,10 @@ export async function deleteBooking(bookingId: number | string) {
 
   if (!session) throw new Error("You must be logged in to perform this action");
 
+  const guestId = session.user.guestId;
+
   try {
-    await deleteBookingApi(bookingId);
+    await deleteBookingApi(bookingId, guestId);
 
     revalidatePath("/room/reservations");
 
@@ -67,15 +69,15 @@ export async function deleteBooking(bookingId: number | string) {
   }
 }
 
-//optimize???
 export async function updateProfile(formData: FormData) {
-  // console.log(formData);
-  // return { success: true, message: "Profile successfully updated" };
-
   const session = await auth();
   if (!session) throw new Error("You must be logged in");
-  const nationalID = formData.get("nationalID") as string;
+  const nationalID = (formData.get("nationalID") as string).trim();
   const country = formData.get("country") as string;
+
+  if (!country || !country.includes("%")) {
+    return { success: false, message: "Please select a valid country" };
+  }
 
   const [nationality, countryFlag] = country.split("%");
 

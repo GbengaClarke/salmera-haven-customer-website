@@ -186,6 +186,16 @@ export default function MakeReservation({
                 <input type="hidden" name="numNights" value={numNights} />
                 <input
                   type="hidden"
+                  name="roomPrice"
+                  value={priceSummary.roomsTotalPrice}
+                />
+                <input
+                  type="hidden"
+                  name="extraPrice"
+                  value={priceSummary.extraPrice}
+                />
+                <input
+                  type="hidden"
                   name="totalPrice"
                   value={priceSummary.finalTotal}
                 />
@@ -211,40 +221,13 @@ export default function MakeReservation({
                     </select>
                   </div>
 
-                  {/* <label className="group flex cursor-pointer items-center justify-between rounded-sm border border-white/5 bg-black/20 p-4 transition-all hover:border-indigo-500/30">
-                    <div className="flex flex-col">
-                      <span className="text-[10px] font-bold tracking-[0.2em] text-white uppercase">
-                        Tasty Breakfast
-                      </span>
-                      <p className="mt-1 text-[10px] tracking-widest text-slate-500 uppercase">
-                        ${breakfastPrice} per night
-                        {range?.from && (
-                          <span className="text-emerald-200">
-                            {" "}
-                            (+${breakfastPrice * numNights * numGuests})
-                          </span>
-                        )}
-                      </p>
-                    </div>
-                    <div className="relative flex items-center">
-                      <input
-                        type="checkbox"
-                        name="hasBreakfast"
-                        checked={hasBreakfast}
-                        onChange={() => setHasBreakfast(!hasBreakfast)}
-                        className="peer h-6 w-6 appearance-none rounded-sm border border-white/20 bg-[#0a0f1d] checked:bg-indigo-600"
-                      />
-                      <HiCheck className="pointer-events-none absolute left-1 hidden h-4 w-4 text-white peer-checked:block" />
-                    </div>
-                  </label> */}
-
                   <label className="group flex cursor-pointer items-center justify-between rounded-sm border border-white/5 bg-black/20 p-4 transition-all hover:border-indigo-500/30">
                     <div className="flex flex-col">
                       <span className="text-[10px] font-bold tracking-[0.2em] text-white uppercase">
                         Tasty Breakfast
                       </span>
-                      {/* Added h-8 or leading-loose to ensure the container height remains constant */}
-                      <p className="mt-1 min-h-[20px] text-[10px] leading-normal tracking-widest text-slate-500 uppercase">
+
+                      <p className="mt-1 min-h-5 text-[10px] leading-normal tracking-widest text-slate-500 uppercase">
                         ${breakfastPrice} per night
                         {range?.from && (
                           <span className="text-emerald-200 md:inline">

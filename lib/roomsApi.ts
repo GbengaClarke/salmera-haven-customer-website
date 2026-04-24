@@ -107,8 +107,15 @@ export async function getBookingCount(id: number) {
   return count ?? 0;
 }
 
-export async function deleteBooking(id: number | string) {
-  const { error } = await supabase.from("bookings").delete().eq("id", id);
+export async function deleteBooking(
+  id: number | string,
+  guestId: number | string,
+) {
+  const { data, error } = await supabase
+    .from("bookings")
+    .delete()
+    .eq("id", id)
+    .eq("guestId", guestId);
 
   if (error) {
     console.error("Supabase error:", error.message);

@@ -26,8 +26,8 @@ function UpdatePassword() {
   const router = useRouter();
   const [isLoading, setIsLoading] = useState(false);
 
-  const [password, setPassword] = useState("aaa1%AAa");
-  const [confirmPassword, setConfirmPassword] = useState("aaa1%AAa");
+  const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 

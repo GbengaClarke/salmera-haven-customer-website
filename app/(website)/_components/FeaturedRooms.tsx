@@ -1,5 +1,8 @@
 import DisplayedRooms from "./DisplayedRooms";
 import { getRooms } from "@/lib/roomsApi";
+// import { Suspense } from "react";
+// import Loading from "@/app/loading";
+// import RoomsList from "./RoomsList"; suspension feature i disabled
 
 export default async function FeaturedRooms() {
   const { success, rooms } = await getRooms();
@@ -19,6 +22,10 @@ export default async function FeaturedRooms() {
           </h2>
           <div className="mt-4 h-px w-20 bg-indigo-400 opacity-50" />
         </div>
+
+        {/* <Suspense fallback={<Loading />}>
+          <RoomsList />
+        </Suspense> */}
 
         {!success || rooms === null ? (
           <div className="-mt-5">

@@ -15,17 +15,6 @@ export async function getUser(email: string) {
   return data;
 }
 
-//was attached to auth.ts session callback
-// export async function getGuest(email: string) {
-//   const { data, error } = await supabase
-//     .from("guests")
-//     .select("*")
-//     .eq("email", email)
-//     .single();
-
-//   return data;
-// }
-
 export async function getGuestUserEmail(email: string) {
   const { data, error } = await supabase
     .from("guests")

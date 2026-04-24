@@ -52,16 +52,14 @@ function LoginForm() {
     setIsLoading(true);
     const toastId = toast.loading("Verifying your credentials...");
 
-    // get formData from the form
     const formData = new FormData(e.currentTarget);
     const email = formData.get("email") as string;
     const password = formData.get("password") as string;
 
-    //  trigger the authorize function in auth config
     const result = await signIn("credentials", {
       email,
       password,
-      redirect: false, // Prevent automatic reload for toast
+      redirect: false,
     });
 
     if (result?.error) {
@@ -76,8 +74,7 @@ function LoginForm() {
 
   return (
     <form onSubmit={handleSignin} className="space-y-5">
-      {/* <form action={handleSignin} className="space-y-5"> */}
-      {/* Email Field */}
+      {/* Email  */}
       <div className="group flex flex-col gap-1">
         <label className="text-sm font-medium text-stone-700 transition-colors group-has-focus:text-blue-500">
           Email
@@ -86,7 +83,7 @@ function LoginForm() {
           <input
             type="email"
             name="email"
-            defaultValue={"gbengaclarke@gmail.com"}
+            defaultValue={"customer@salmera.com"}
             required
             placeholder="name@example.com"
             className="w-full rounded-lg border border-stone-300 bg-white/50 py-3 pr-4 pl-10 text-stone-700 transition-all outline-none hover:border-blue-300 focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
@@ -95,7 +92,7 @@ function LoginForm() {
         </div>
       </div>
 
-      {/* Password Field */}
+      {/* Password  */}
       <div className="group flex flex-col gap-1">
         <label className="text-sm font-medium text-stone-700 transition-colors group-has-focus:text-blue-500">
           Password
@@ -104,7 +101,7 @@ function LoginForm() {
           <input
             type={showPassword ? "text" : "password"}
             required
-            defaultValue={"aaa1%AAA"}
+            defaultValue={"YouAreWelcome"}
             name="password"
             placeholder="••••••••"
             className="w-full rounded-lg border border-stone-300 bg-white/50 py-3 pr-12 pl-10 text-stone-700 transition-all outline-none hover:border-blue-300 focus:border-blue-500 focus:ring-1 focus:ring-blue-500"

@@ -1,7 +1,7 @@
 "use client";
 
 import { updateProfile } from "@/app/actions/actions";
-import { useEffect, useState, useTransition } from "react";
+import { useState, useTransition } from "react";
 import toast from "react-hot-toast";
 import FormButton from "./FormButton";
 import { HiOutlineGlobeAlt, HiOutlineInformationCircle } from "react-icons/hi2";
@@ -146,7 +146,7 @@ export default function UpdateProfileForm({
           </label>
           <input
             type="text"
-            value={fullName}
+            value={fullName || "Guest Magnificente"}
             readOnly
             disabled
             className="w-full cursor-not-allowed rounded-sm border border-white/5 bg-slate-900 px-5 py-4 text-sm text-slate-600"

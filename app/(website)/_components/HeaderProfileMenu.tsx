@@ -34,7 +34,7 @@ function HeaderProfileMenu({ user }: HeaderType) {
   const closeMenu = useCallback(() => {
     setIsOpen(false);
   }, []);
-  
+
   useOutsideInteraction(menuRef, closeMenu, isOpen);
 
   async function handleSignOut() {
@@ -65,11 +65,11 @@ function HeaderProfileMenu({ user }: HeaderType) {
       </Link>
 
       <Link
-        href={name ? "/account" : "/login"}
+        href={email ? "/account" : "/login"}
         className={`group relative flex items-center transition-all md:cursor-pointer md:gap-2 md:rounded-full md:bg-indigo-900 md:px-2 md:py-1 md:hover:bg-indigo-900/80 md:hover:text-emerald-100 ${disabledClasses}`}
       >
         <div className="pointer-events-none absolute top-15 right-0 z-50 hidden translate-y-2 rounded-md bg-slate-900 px-3 py-2 text-sm font-medium whitespace-nowrap text-slate-300 opacity-0 shadow-2xl transition-all duration-300 group-hover:translate-y-0 group-hover:opacity-100 md:block">
-          {name ? "Manage your account" : "Login or Create Account"}
+          {email ? "Manage your account" : "Login or Create Account"}
           <div className="absolute -top-1 right-4 h-2 w-2 rotate-45 bg-slate-900"></div>
         </div>
 
@@ -85,7 +85,7 @@ function HeaderProfileMenu({ user }: HeaderType) {
         </div>
 
         <div className="hidden text-[1rem] font-medium md:block">
-          {name ? name : "Login/Signup"}
+          {email ? name || "Guest Magnificente" : "Login/Signup"}
         </div>
       </Link>
 
@@ -100,7 +100,7 @@ function HeaderProfileMenu({ user }: HeaderType) {
         </button>
 
         <div
-          className={`absolute top-16 right-0 z-40 w-64 rounded-xl border border-white/10 bg-slate-900/90 p-4 font-semibold shadow-2xl  transition-all duration-300 ease-in-out ${
+          className={`absolute top-16 right-0 z-40 w-64 rounded-xl border border-white/10 bg-slate-900/90 p-4 font-semibold shadow-2xl transition-all duration-300 ease-in-out ${
             isOpen
               ? "translate-x-0 opacity-100 backdrop-blur-md"
               : "pointer-events-none translate-x-10 opacity-0"
