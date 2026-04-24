@@ -17,12 +17,12 @@ interface SignupFormProps {
 function SignupForm({ step, setStep }: SignupFormProps) {
   const router = useRouter();
   const [isLoading, setIsLoading] = useState(false);
-  const [fullName, setfullName] = useState("Gbenga Clarke");
-  const [email, setEmail] = useState("clarkegbenga@gmail.com");
-  const [userOtp, setuserOtp] = useState("123456");
+  const [fullName, setfullName] = useState("");
+  const [email, setEmail] = useState("");
+  const [userOtp, setuserOtp] = useState("");
 
-  const [password, setPassword] = useState("aaa1%AAA");
-  const [confirmPassword, setConfirmPassword] = useState("aaa1%AAA");
+  const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
