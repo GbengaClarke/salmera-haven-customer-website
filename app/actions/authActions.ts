@@ -18,7 +18,7 @@ export async function sendEmailOTP(otp: string, email: string) {
   const normalizedEmail = email.trim().toLowerCase();
 
   try {
-    //  Check 60 seconds Cooldown
+    //  Check if sent within 60s
     const otpStatus = await getExistingOTP(normalizedEmail);
     if (otpStatus.success) return otpStatus;
 
@@ -76,7 +76,6 @@ export async function login(email: string, password: string) {
   });
 
   if (error) {
-    // Return a user-friendly error message
     console.error("Login Error:", error.message);
     return {
       success: false,
@@ -84,7 +83,6 @@ export async function login(email: string, password: string) {
     };
   }
 
-  // Clear the cache for the layout
   revalidatePath("/", "layout");
 
   //  Return success
@@ -108,7 +106,6 @@ export async function requestPasswordReset(email: string) {
   const normalizedEmail = email.trim().toLowerCase();
 
   const { error } = await supabase.auth.resetPasswordForEmail(normalizedEmail, {
-    // redirectTo: `http://localhost:3000/update-password`,
     redirectTo: `${process.env.NEXTAUTH_URL}/update-password`,
   });
 

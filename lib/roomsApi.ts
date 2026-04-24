@@ -1,9 +1,12 @@
 import { notFound } from "next/navigation";
 import { supabase } from "./supabase";
-import Error from "@/app/error";
+// import Error from "@/app/error";
 
 export async function getRooms() {
-  const { data, error } = await supabase.from("rooms").select("*");
+  const { data, error } = await supabase
+    .from("rooms")
+    .select("*")
+    .order("name", { ascending: true });
 
   if (error) {
     console.error(error);
