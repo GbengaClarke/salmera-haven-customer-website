@@ -263,7 +263,7 @@ export default function MakeReservation({
                   </div>
                 </div>
 
-                <div className="mt-auto pt-8">
+                <div className="p-8x mt-auto">
                   <FormButton
                     loadingText="Processing..."
                     disabled={!range?.from}
@@ -274,7 +274,7 @@ export default function MakeReservation({
                           ? `Reserve: ${formatCurrency(priceSummary.finalTotal)}`
                           : "Select Dates in Calender to Continue"
                     }
-                    buttonStyle={`w-full py-5 text-[12px] font-bold uppercase tracking-[0.3em] transition-all 
+                    buttonStyle={`w-full p-5 text-[12px] font-bold uppercase tracking-[0.3em] transition-all 
                       ${range?.from && bookingCount < 3 ? "bg-white text-black hover:bg-indigo-400" : "bg-slate-800 text-slate-500 opacity-50 cursor-not-allowed"}`}
                   />
                 </div>
