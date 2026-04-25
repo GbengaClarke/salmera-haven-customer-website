@@ -1,7 +1,7 @@
 import { FaFacebookF, FaInstagram, FaLinkedinIn } from "react-icons/fa";
 import { FaXTwitter } from "react-icons/fa6";
-// import CompanyLogo from "./CompanyLogo";
 import Image from "next/image";
+import NewsletterForm from "./NewsletterForm";
 
 const FOOTER_LINKS = {
   navigation: [
@@ -40,7 +40,6 @@ export default function Footer() {
                 Salmera Haven
               </h2>
             </div>
-            {/* <CompanyLogo contStyle="gap-2" imageSize="h-13 w-15" textStyle="font-cormorant whitespace-nowrap text-3xl text-white tracking-widest uppercase"/> */}
 
             <p className="max-w-xs text-sm leading-relaxed font-light text-slate-400">
               Redefining luxury living through architectural elegance and
@@ -69,10 +68,7 @@ export default function Footer() {
             <ul className="space-y-4">
               {FOOTER_LINKS.navigation.map((link) => (
                 <li key={link.name}>
-                  <a
-                    // href={link.href}
-                    className="text-sm font-light transition-colors hover:text-white"
-                  >
+                  <a className="text-sm font-light transition-colors hover:text-white">
                     {link.name}
                   </a>
                 </li>
@@ -87,10 +83,7 @@ export default function Footer() {
             <ul className="space-y-4">
               {FOOTER_LINKS.services.map((link) => (
                 <li key={link.name}>
-                  <a
-                    // href={link.href}
-                    className="text-sm font-light transition-colors hover:text-white"
-                  >
+                  <a className="text-sm font-light transition-colors hover:text-white">
                     {link.name}
                   </a>
                 </li>
@@ -98,7 +91,7 @@ export default function Footer() {
             </ul>
           </div>
 
-          {/* Column 4: Newsletter */}
+          {/* Newsletter */}
           <div className="space-y-6">
             <h3 className="text-sm font-semibold tracking-[0.2em] text-white uppercase">
               Newsletter
@@ -106,7 +99,7 @@ export default function Footer() {
             <p className="text-sm font-light text-slate-400">
               Subscribe to receive updates on exclusive offers and new openings.
             </p>
-            <form className="flex flex-col gap-3">
+            {/* <form className="flex flex-col gap-3">
               <input
                 type="email"
                 placeholder="Email Address"
@@ -115,8 +108,11 @@ export default function Footer() {
               <button className="bg-white px-6 py-3 text-xs font-bold tracking-widest text-indigo-950 uppercase transition-colors hover:bg-indigo-100">
                 Subscribe
               </button>
-            </form>
+            </form> */}
+            <NewsletterForm />
           </div>
+
+          {/* <NewsletterForm /> */}
         </div>
 
         {/* Bottom Bar */}

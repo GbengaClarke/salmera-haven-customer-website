@@ -272,7 +272,7 @@ export default function MakeReservation({
                         ? "Booking Limit Reached (Max 3)"
                         : range?.from
                           ? `Reserve: ${formatCurrency(priceSummary.finalTotal)}`
-                          : "Select Dates to Continue"
+                          : "Select Dates in Calender to Continue"
                     }
                     buttonStyle={`w-full py-5 text-[12px] font-bold uppercase tracking-[0.3em] transition-all 
                       ${range?.from && bookingCount < 3 ? "bg-white text-black hover:bg-indigo-400" : "bg-slate-800 text-slate-500 opacity-50 cursor-not-allowed"}`}

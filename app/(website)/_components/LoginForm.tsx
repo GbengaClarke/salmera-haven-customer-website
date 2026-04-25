@@ -83,6 +83,7 @@ function LoginForm() {
           <input
             type="email"
             name="email"
+            autoComplete="email"
             defaultValue={"customer@salmera.com"}
             required
             placeholder="name@example.com"
